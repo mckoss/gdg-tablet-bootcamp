@@ -1,6 +1,5 @@
 import views
-from views import AdminPageHandler  # from SC replacing:
-# from MM  from views import get_template_handler
+from views import AdminPageHandler
 
 import models
 

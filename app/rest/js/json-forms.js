@@ -91,6 +91,10 @@ namespace.module('startpad.json-forms', function(exports, require) {
                         item.name = '#' + item.id;
                     }
 
+                    if (!item.title) {
+                        item.title = 'generic title';
+                    }
+
                     listHTML += modelRowTemplate(item);
                 }
                 $('#list-table-body').html(listHTML);
