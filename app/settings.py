@@ -1,3 +1,3 @@
 DEBUG = True
 
-SITE_NAME = "Museum of Flight Mobile"
+SITE_NAME = "Google Developers Group Tablet"
