@@ -1,36 +1,46 @@
-# Mobile Site
+# Administration Site
 
-- Header should be white on black (or other MOF-based design)
-- Read from database, not hard coded
-- Factor out slide show to namespace module
-- Images list parsing
-- Map list parsing
-- Migrate to pull standard html (markdown-generated) for page content.
-- Track user with cookies
-- Add favicon (static)
-- Encapsulate get/put/create/delete (mini ORM) in json-rest - don't do direct ajax in forms.
+- Plugins with samples
+  - qr-code generator (from shortCode)
+  - showdown
+  - image list
+- Allow deletion of image.
+- Link to AppEngine admin from our admin.
 
-# Testing and Performance
-
-- Combine and minimaize JS and CSS
-- Use memcache to retried rest_models -> datastore is slow
-- Measure download time and download bytes
-- Add qunit tests
 
 # Framework
 
 - Factor all ajax calls into json-rest.js.
+- Sign-in support for target app.
+- Mobile page helpers
+  - No scroll page
+  - Sidebar?
+- Build app.yaml from user customization file (e.g. dev name - not checked in)
 
 
-# Administration Site
+# Sample apps
 
-- Ensure permissions only allow admin users to edit.
-- Publish to AppEngine
-- Image model (with image upload)
-- Use bootstrap css
-- qr-code generator (from shortCode)
+- Show image list
+- QR Code
+- Showdown/markdown
+- Mobile screen size and orientation demo
+- Todo:
+  - Enable real-time updates.
+  - Show owner of item?
 
-- /admin - Admin home - usage stats, etc.
-- /admin/forms/ - List all model types
-- /admin/forms/model - List of instances for editing and New (generic)
-- /admin/forms/model/id - Display/edit instance
+
+# Documentation
+
+- Scratch version of app w/o all the sample models.
+- How to modify app
+- Data URL's
+- Admin docs (online help).
+
+
+# Testing and Performance
+
+- Combine and minimize JS and CSS
+- Use memcache to retried rest_models -> datastore is slow
+- Measure download time and download bytes
+- Add qunit tests
+- Windows and Mac installation
