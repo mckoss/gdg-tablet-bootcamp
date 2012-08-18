@@ -3,6 +3,5 @@
 *.pyc
 env/*
 .DS_Store
-appengine/*
 env/*
 activate

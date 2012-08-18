@@ -1,0 +1,11 @@
+BIN_DIR="$(cd `dirname $BASH_SOURCE` && pwd)"
+PROJ_DIR="`dirname $BIN_DIR`"
+ENV_DIR="$PROJ_DIR/env"
+AE_DIR="$ENV_DIR/appengine"
+AE_BIN="$AE_DIR/google_appengine"
+
+source $ENV_DIR/bin/activate
+PATH="$BIN_DIR:$AE_BIN:$PATH"
+
+alias home="cd $PROJ_DIR"
+alias run-app="dev_appserver.py $PROJ_DIR/app"
