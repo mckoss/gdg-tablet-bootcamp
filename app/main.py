@@ -14,7 +14,7 @@ from rest.views import PageHandler
 models.init()
 
 paths = [
-    ('/', PageHandler.using('mobile_index.html')),
+    ('/', PageHandler.using('index.html')),
     ]
 
 paths.extend(rest.get_paths())

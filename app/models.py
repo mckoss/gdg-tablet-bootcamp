@@ -8,11 +8,19 @@ from rest.models import RESTModel, Timestamped
 
 def init():
     rest_models.add_models({
-            'page': Page,
-            'tracker': Tracker
+            'todo': Todo
+            #'page': Page,
+            #'tracker': Tracker
             })
 
 
+class Todo(RESTModel, Timestamped):
+    user_id = db.StringProperty()
+    text = db.StringProperty()
+    done = db.BooleanProperty()
+    order = db.IntegerProperty()
+
+"""
 class Page(RESTModel, Timestamped):
     title = db.StringProperty()
     shortCode = db.StringProperty()
@@ -32,3 +40,4 @@ class Page(RESTModel, Timestamped):
 class Tracker(RESTModel, Timestamped):
     ip = db.StringProperty()
     browser = db.StringProperty()
+"""
