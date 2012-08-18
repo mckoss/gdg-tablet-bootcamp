@@ -13,18 +13,15 @@ Bring your laptop (Windows, Mac, or Linux) with you; we'll have developers able 
 any rough patches you have with tool installation. Our goal is to get everyone able to modify,
 build, and deploy their own copy of the skeleton app by the end of the evening.
 
-    When: Thursday, Jan 12, 2012 from 6pm - 9pm
-    Where: StartPad, 811 First Ave, Suite 480, Seattle
-    Phone: (206) 388-3466
+    When: September 29-30, 2012
+    Where: SURF Incubator (1st and Marion, 8th floor of the Exchange Building)
 
   [GitHub]: https://github.com/
   [App Engine]: http://code.google.com/appengine/
-  [Bootstrap]: http://twitter.github.com/bootstrap/
   [Backbone.js]: http://documentcloud.github.com/backbone/
   [jQuery]: http://jquery.com/
   [Namespace.js]: https://github.com/mckoss/namespace
   [QUnit]: https://github.com/jquery/qunit
-  [RequireJS]: http://requirejs.org/
 
 # Setup Instructions
 
@@ -53,11 +50,11 @@ not the windows command prompt):
 
 The rest of your development machine configuration can be setup by running this command:
 
-    $ bin/make-gtug-env.sh
+    $ bin/make-env.sh
 
 This script will install (if you don't them already):
 
-1. [Python 2.5] (yes its old, but it's the official version supported by Google App Engine).
+1. [Python 2.7]
 2. [pip] - Python package installer (the *new* easy_install).
 3. [virtualenv]: Python environment isolation builder.
 4. [Google App Engine]: Google's web application service (for Python).
