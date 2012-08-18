@@ -87,12 +87,12 @@ namespace.module('startpad.json-forms', function(exports, require) {
                     var item = result[i];
                     item.modelName = pageInfo.model;
 
-                    if (item.name === null || item.name == '') {
+                    if (!item.name) {
                         item.name = '#' + item.id;
                     }
 
                     if (!item.title) {
-                        item.title = 'generic title';
+                        item.title = item.name;
                     }
 
                     listHTML += modelRowTemplate(item);
