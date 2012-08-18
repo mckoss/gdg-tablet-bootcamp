@@ -1,8 +1,9 @@
-application: mobile-museum
-version: beta-0-2
-runtime: python
+application: gdg-tablet
+version: beta
+runtime: python27
 api_version: 1
 default_expiration: 1h
+threadsafe: true
 
 handlers:
 - url: /images
@@ -20,8 +21,8 @@ handlers:
 - url: /rest/js
   static_dir: rest/js
 
-- url: .*
-  script: main.py
+- url: /.*
+  script: main.app
 
 skip_files:
 - ^app\.yaml$
@@ -32,4 +33,3 @@ skip_files:
 - ^(.*/)?\.
 - ^.*\.bak$
 - ^.*\.orig$
-- ^.*/TAGS$

@@ -278,6 +278,7 @@ class PageHandler(UserHandler):
     def using(cls, template_name, render_data=None, package=None):
         """ Factory function to create a PageHandler instance to be used
         as a Handler callable. """
+        import pdb; pdb.set_trace()
         def factory(*args, **kwargs):
             path = ['templates', template_name]
             if package is not None:
@@ -309,7 +310,7 @@ class AdminPageHandler(PageHandler):
     @require_admin_login
     def get(self, *args):
         super(AdminPageHandler, self).get(*args)
-    
+
 
 def pretty_json(json_dict):
     return json.dumps(json_dict, sort_keys=True, indent=2,
