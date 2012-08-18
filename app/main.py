@@ -18,7 +18,7 @@ from rest.views import PageHandler
 models.init()
 
 paths = [
-    ('/', PageHandler.using('index.html')),
+    ('/', PageHandler.params('index.html')),
     ]
 
 paths.extend(rest.get_paths())
