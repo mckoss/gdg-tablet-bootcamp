@@ -3,14 +3,11 @@
 """
 from google.appengine.ext import db
 
-import rest.models as rest_models # Possibly unnecessary? (used in another file)
-from rest.models import RESTModel, Timestamped
+from rest.models import RESTModel, Timestamped, add_models
 
 def init():
-    rest_models.add_models({
+    add_models({
             'todo': Todo
-            #'page': Page,
-            #'tracker': Tracker
             })
 
 
@@ -19,25 +16,3 @@ class Todo(RESTModel, Timestamped):
     text = db.StringProperty()
     done = db.BooleanProperty()
     order = db.IntegerProperty()
-
-"""
-class Page(RESTModel, Timestamped):
-    title = db.StringProperty()
-    shortCode = db.StringProperty()
-    images = db.TextProperty()
-    mapLocations  = db.TextProperty()
-    # TODO: Don't download Markdown as well as HTML body in mobile fetch
-    body = db.TextProperty()
-    bodyHTML = db.TextProperty()
-
-    form_order = ('title', 'shortCode', 'body', 'imageGUI.loadPictures(item.images);',
-                  'imageGUI.loadMaps(item.mapLocations)',)
-    read_only = ('created', 'modified')
-
-    computed = ('item.bodyHTML = markdown(item.body);',)
-
-
-class Tracker(RESTModel, Timestamped):
-    ip = db.StringProperty()
-    browser = db.StringProperty()
-"""
