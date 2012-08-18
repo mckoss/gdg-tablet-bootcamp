@@ -266,24 +266,29 @@ def filter_query_by_value(query, model, property_name, value):
     query.filter('%s = ' % property_name, value)
 
 
-class PageHandler(UserHandler):
+class ParamHandler(object):
+    """ Class factory so we can have parameterized Request Handlers. """
+    @classmethod
+    def params(cls, *args_p, **kwargs_p):
+        class Factory(cls):
+            def __init__(self, *args, **kwargs):
+                super(Factory, self).__init__(*args, **kwargs)
+                self.set_params(*args_p, **kwargs_p)
+        return Factory
+
+
+class PageHandler(ParamHandler, UserHandler):
     """ Request handler for generic pages for webapp views.
     Usage: PageHandler.using("template-name.html"). """
-    def __init__(self, template_path, render_data=None):
+    def init_params(self, template_path, render_data=None):
         super(PageHandler, self).__init__()
-        self.template_path = template_path
-        self.render_data = render_data or {}
 
-    @classmethod
-    def using(cls, template_name, render_data=None, package=None):
-        """ Factory function to create a PageHandler instance to be used
-        as a Handler callable. """
-        def factory(*args, **kwargs):
-            path = ['templates', template_name]
-            if package is not None:
-                path.insert(0, package)
-            return cls(os.path.join(*path), render_data=render_data)
-        return factory
+    def set_params(self, template_name, render_data=None, package=None):
+        path = ['templates', template_name]
+        if package is not None:
+            path.insert(0, package)
+        self.template_path = os.path.join(*path)
+        self.render_data = render_data or {}
 
     def prepare(self):
         username = self.user and self.user.nickname()
@@ -309,7 +314,7 @@ class AdminPageHandler(PageHandler):
     @require_admin_login
     def get(self, *args):
         super(AdminPageHandler, self).get(*args)
-    
+
 
 def pretty_json(json_dict):
     return json.dumps(json_dict, sort_keys=True, indent=2,

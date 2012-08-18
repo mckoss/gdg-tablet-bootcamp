@@ -7,8 +7,8 @@ AE_BIN="$AE_DIR/google_appengine"
 ENV_DIR="$PROJDIR/env"
 
 AE_FILES=http://googleappengine.googlecode.com/files
-AE_VERSION="1.6.1"
-PYTHON_CMD=python2.5
+AE_VERSION="1.7.0"
+PYTHON_CMD=python2.7
 SETUP_TOOLS=setuptools-0.6c11-py2.7.egg
 
 SUDO=sudo
@@ -18,8 +18,8 @@ if [ `uname` == "Darwin" ]; then
 elif [[ `uname` == *W32* ]]; then
     platform="Windows"
     SUDO=""
-    PYTHON_VER="2.5.4"
-    PYTHON_CMD=python2.5.exe
+    PYTHON_VER="2.7.3"
+    PYTHON_CMD=python2.7.exe
 else
     platform="Linux"
 fi
@@ -65,23 +65,11 @@ if ! check_prog $PYTHON_CMD ; then
         download http://www.python.org/ftp/python/$PYTHON_VER/python-$PYTHON_VER.msi
         cd "$DOWN_DIR"
         msiexec -i $FILE
-        ln -s /c/Python25/python.exe /c/Python25/python2.5.exe
-        PATH=$PATH:/c/Python25:/c/Python25/Scripts
+        ln -s /c/Python27/python.exe /c/Python/python2.7.exe
+        PATH=$PATH:/c/Python27:/c/Python27/Scripts
         export PATH
-        echo 'PATH=$PATH:/c/Python25:/c/Python25/Scripts' >> "$HOME/.profile"
+        echo 'PATH=$PATH:/c/Python27:/c/Python27/Scripts' >> "$HOME/.profile"
         cd "$PROJ_DIR"
-    elif [ $platform == "Mac" ]; then
-        echo "Please install Python 2.5.6 from http://www.python.org/getit/releases/2.5.6/"
-        echo "Or install http://www.python.org/ftp/python/2.5/python-2.5-macosx.dmg"
-        exit 1
-    else
-    # Python 2.5 not in Ubuntu distro :-(
-    sudo add-apt-repository ppa:fkrull/deadsnakes
-    sudo apt-get update
-    sudo apt-get install python2.5
-    sudo apt-get install libjpeg-dev
-    sudo ln -s /usr/lib/x86_64-linux-gnu/libz.so /usr/lib/
-    sudo ln -s /usr/lib/x86_64-linux-gnu/libjpeg.so /usr/lib/
     fi
 fi
 
@@ -102,7 +90,7 @@ if ! check_prog virtualenv ; then
     $SUDO pip install virtualenv
 fi
 
-read -p "Create local Python 2.5 environment? (y/n): "
+read -p "Create local $PYTHON_CMD environment? (y/n): "
 if [ "$REPLY" = "y" ]; then
     rm -rf "$ENV_DIR"
     virtualenv --python=$PYTHON_CMD "$ENV_DIR"

@@ -5,7 +5,7 @@ import models
 
 
 def using(template_name, render_data=None):
-    return AdminPageHandler.using(template_name, render_data, package='rest')
+    return AdminPageHandler.params(template_name, render_data, package='rest')
 
 
 def get_paths():
