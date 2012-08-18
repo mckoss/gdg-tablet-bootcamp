@@ -1,0 +1,35 @@
+application: mobile-museum
+version: beta-0-2
+runtime: python
+api_version: 1
+default_expiration: 1h
+
+handlers:
+- url: /images
+  static_dir: images
+
+- url: /css
+  static_dir: css
+
+- url: /js
+  static_dir: js
+
+- url: /rest/css
+  static_dir: rest/css
+
+- url: /rest/js
+  static_dir: rest/js
+
+- url: .*
+  script: main.py
+
+skip_files:
+- ^app\.yaml$
+- ^index\.yaml$
+- ^.*\#$
+- ^.*~$
+- ^.*\.py[co]$
+- ^(.*/)?\.
+- ^.*\.bak$
+- ^.*\.orig$
+- ^.*/TAGS$

@@ -1,0 +1,30 @@
+{% extends "desktop_base.html" %}
+
+{% block head_extra %}
+<script type="text/javascript" src="/rest/js/image-gui.js"></script>
+<link rel="stylesheet" type="text/css" href="/rest/css/forms.css" />
+<link rel="stylesheet" type="text/css" href="/rest/css/thumbnail-display.css" />
+
+
+<script>
+  $(document).ready(namespace.startpad.json_forms.onItemPage);
+</script>
+{% endblock %}
+
+{% block body %}
+
+  <div class="span8">
+
+    <fieldset>
+      <legend id="item-form-legend"></legend>
+
+      <div id="item-form-body">
+      </div>
+    </fieldset>
+
+    <button id="_save" class="btn btn-primary">Save</button>
+    <button id="_delete" class="btn">Delete</button>
+    <!--  <button id="_save" class="btn">Find</button>  -->
+  </div>
+
+{% endblock %}

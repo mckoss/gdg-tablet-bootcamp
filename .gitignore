@@ -1,0 +1,14 @@
+*#
+*~
+pf.py
+.pf
+pferror.html
+app.json
+*.pyc
+appengine/*
+mobile-museum/*
+activate
+activate.bat
+.DS_Store
+combined.js
+combined.min.js

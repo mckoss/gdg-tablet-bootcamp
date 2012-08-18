@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block head %}
+<link rel="stylesheet" type="text/css" href="/rest/css/desktop.css" />
+<link rel="stylesheet" type="text/css" href="/rest/css/bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="/rest/css/bootstrap-responsive.css" />
+
+<script type="text/javascript" src="/js/libs/namespace-plus.js"></script>
+<script type="text/javascript" src="/js/libs/jquery-min.js"></script>
+<script type="text/javascript" src="/js/libs/underscore-min.js"></script>
+<script type="text/javascript" src="/js/showdown.js"></script>
+<script type="text/javascript" src="/rest/js/json-forms.js"></script>
+<script type="text/javascript" src="/rest/js/json-rest.js"></script>
+<script type="text/javascript" src="/rest/js/bootstrap.js"></script>
+
+{% block head_extra %}{% endblock %}
+{% endblock %}
+{% block navbar %}
+
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container-fluid">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="brand" href="#">Mobile Museum Administration</a>
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li><a href="/admin">Home</a></li>
+          <li><a href="/admin/forms">Database</a></li>
+          <li><a href="/admin/media">Media</a></li>
+          <!--<li><a href="/admin/help">Help</a></li>-->
+          <li><a href="/">Main Site</a></li>
+        </ul>
+        {% if username %}
+        <p class="navbar-text pull-right">Welcome, {{ username }}.
+          <a href="{{ sign_out }}">Sign out</a>.
+        </p>
+        {% else %}
+        <p class="navbar-text pull-right"><a href="{{ sign_in }}">Sign in</a>.</p>
+        {% endif %}
+      </div><!--/.nav-collapse -->
+    </div>
+  </div>
+</div>
+
+{% endblock %}

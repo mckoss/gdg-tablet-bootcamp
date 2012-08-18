@@ -1,0 +1,13 @@
+{
+  "files": {
+    "js/combined.js": [
+      "js/libs/namespace-plus.js",
+      "js/libs/jquery.js",
+      "js/libs/underscore.js",
+      "js/main.js",
+      "rest/js/json-rest.js"
+    ]
+  },
+  "minify": true,
+  "uploadIndividualFiles": false
+}

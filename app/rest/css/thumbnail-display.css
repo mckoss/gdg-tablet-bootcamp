@@ -1,0 +1,78 @@
+#all-thumbnails { margin: 0; padding: 0 15px 15px 15px; }
+
+.thumbnail-container {
+  position: relative;
+  margin: 5px;
+  width: 84px;
+  height: 100px;
+  float: left;
+}
+
+.thumbnail-container a {
+  position: absolute; left: 0; top: 0;
+  width: 84px;
+  height: 100px;
+  text-decoration: none;
+}
+
+.thumbnail-container a div {
+  position: absolute;
+  top: 84px;
+  left: 0;
+  font-size: 13px;
+  height: 16px;
+  width: 84px;
+  overflow: hidden;
+  line-height: 16px;
+  text-align: center;
+}
+
+.thumbnail-container a img {
+  position: absolute;
+}
+
+/* thumbnail is also a bootstrap class and these styles work with bootstrap */
+.thumbnail-container a .thumbnail {
+  margin: 5px;
+  display: block;
+}
+
+/*.thumbnail-container a .icon { width: 25px; height: 25px; opacity: 0; }*/
+.thumbnail-container a .icon { width: 16px; height: 16px; opacity: 0; }
+
+.thumbnail-container a:hover .icon { opacity: 0.5; }
+
+/*.thumbnail-container a .delete { left: 59px; top: 0; }*/
+.thumbnail-container a .delete { left: 68px; top: 0; }
+.thumbnail-container a .delete:hover { opacity: 1; }
+
+/*.thumbnail-container a .back { left: 0px; top: 30px; }*/
+.thumbnail-container a .back { left: 0px; top: 34px; }
+.thumbnail-container a .back:hover { opacity: 0.8; }
+
+/*.thumbnail-container a .fwd { left: 59px; top: 30px; }*/
+.thumbnail-container a .fwd { left: 68px; top: 34px; }
+.thumbnail-container a .fwd:hover { opacity: 0.8; }
+
+.thumbnail-container a .map-x { width: 10px; height: 10px; }
+
+.modal-body { position: relative; max-height: 600px; }
+.modal-body .modal-image { width: 530px; }
+.modal-body .modal-map { width: 530px; }
+.modal-body .modal-map-x { position: absolute; width: 20px; height: 20px; }
+.modal-body a { width: 100%; height: 100%; }
+
+.add-image-container {
+  position: relative;
+  width: 84px;
+  height: 100px;
+  float: left;
+}
+.add-image-container .add-image {
+  margin: 20px;
+  width: 44px;
+  height: 44px;
+  opacity: 0.3;
+
+}
+.add-image-container .add-image:hover { opacity: 0.8; }

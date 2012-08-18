@@ -1,0 +1,45 @@
+{% extends "desktop_base.html" %}
+
+{% block head_extra %}
+<link rel="stylesheet" type="text/css" href="/rest/css/media-upload.css" />
+<link rel="stylesheet" type="text/css" href="/rest/css/thumbnail-display.css" />
+
+<script>
+  $(document).ready(namespace.startpad.json_forms.onMediaPage);
+</script>
+{% endblock %}
+
+{% block body %}
+
+  <div id="upload-form-container">
+    <form action="/image-upload" enctype="multipart/form-data" method="post">
+      <label for="img_name">Name</label>
+      <input id="img_name" type="text" name="img_name"/>
+      <input type="file" name="img"/>
+      <input type="submit" value="Upload" />
+    </form>
+  </div>
+
+
+  <div id="all-thumbnails">
+
+    {% for image in images %}
+    <div class="thumbnail-container">
+      <a data-toggle="modal" href="#{{ image.key.name }}">
+        <img src="/admin/media/{{ image.key.name }}?size=thumbnail" class="thumbnail" />
+        <div>{{ image.key.name }}</div>
+      </a>
+    </div>
+    <div class="modal hide" id="{{ image.key.name }}">
+      <div class="modal-body" id="{{ image.key.name }}-body">
+        <a href="/admin/media/{{ image.key.name }}?size=large" target="blank"></a>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">Close</a>
+      </div>
+    </div>
+    {% endfor %}
+
+  </div>
+
+{% endblock %}

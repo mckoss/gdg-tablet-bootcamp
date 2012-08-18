@@ -1,0 +1,56 @@
+{% extends "mobile_base.html" %}
+
+{% block head_extra %}
+<title>{{ site_name }}</title>
+{% endblock %}
+
+{% block body %}
+  <div class="title">
+    <img id=back src="images/arrow.png" />
+    <div id=page-name>Page</div>
+    <div id=switch>
+      <img id=map src="images/map.png" />
+      <img id=plane src="images/plane.png" />
+    </div>
+  </div>
+
+  <div class=footer>
+    <div id=home class=gradient>Home</div><div id=about class=gradient>About</div>
+  </div>
+
+
+  <script type="text/template" id="slideshow-template">
+    <div class=ss_container id=<%= type %>_ss_container>
+      <div class=ss>
+        <div class=ss_imgs>
+          <%= images %>
+        </div>
+      </div>
+      <div class=ss_ctrl>
+        <!--<img id=ss_back src="images/arrow_back.png" />
+        <img id=ss_fwd src="images/arrow_fwd.png" />-->
+        <div class=ss_dots>
+          <%= dots %>
+        </div>
+      </div>
+    </div>
+  </script>
+
+  <script type="text/template" id="image-template">
+    <% _.each(images, function(src) { %> <img src="admin/media/<%= src %>?size=mobile" class=invisible /> <% }); %>
+  </script>
+
+  <script type="text/template" id="map-image-template">
+    <% _.each(images, function(src) { %> <img src="admin/media/<%= src %>?size=mobile" /> <% }); %>
+    <% _.each(xIndex, function(i) { %> <img id="x-<%= i %>" src="images/x.png" /> <% }); %>
+  </script>
+
+  <script type="text/template" id="dot-template">
+    <% _.each(dots, function(dot) { %> <div class=dot></div> <% }); %>
+  </script>
+
+
+{% endblock %}
+
+</body>
+</html>

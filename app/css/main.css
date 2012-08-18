@@ -1,0 +1,245 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-transform: translate3d(0,0,0);
+}
+
+/* body:after and the two media queries for doing 
+   cross-device orientation detection
+*/
+body:after {
+    content: "";
+    position: absolute;
+    color: transparent;
+}
+
+@media all and (orientation: portrait) {
+    body:after {
+        content: "p";
+    }
+}
+
+@media all and (orientation: landscape) {
+    body:after {
+        content: "l";
+    }
+}
+
+.title {
+    width: 100%;
+    height: 30px;
+    text-align: center;
+    position: relative;
+    background-color: #b8b8c0;
+}
+.title #page-name {
+    position: absolute;
+    width: 100%;
+    font-size: 20px;
+    line-height: 30px;
+    font-weight: bold;
+}
+.title #back {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    top: 5px;
+    left: 15px;
+}
+.title #switch {
+    position: absolute;
+    width: 50px;
+    height: 30px;
+    right: 0;
+}
+.title #switch img {
+    width: 20px;
+    height: 20px;
+    margin: 5px 15px;
+    left: 0;
+    visibility: hidden;
+    position: absolute;
+}
+body:not(.map-visible) .title #switch #map { visibility: visible; }
+body.map-visible .title #switch #plane { visibility: visible; }
+
+.ss_container {
+    width: 100%;
+    height: 300px;
+    position: relative;
+    overflow: hidden;
+    display: block;
+}
+body.map-visible #pic_ss_container { display: none; }
+body:not(.map-visible) #map_ss_container { display: none; }
+
+.ss_container .ss {
+    position: relative;
+    width: 100%;
+    height: 280px;
+    overflow: hidden;
+    background-color: #303038;
+}
+
+body .ss_container .ss .ss_imgs {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    -webkit-transition: all 600ms ease-out;
+    -ms-transition: all 600ms ease-out;
+    -moz-transition: all 600ms ease-out;
+    -o-transition: all 600ms ease-out;
+    transition: all 600ms ease-out;
+
+    -webkit-transform: translateZ(0);
+}
+
+.ss_container .ss .ss_imgs img {
+    position: absolute;
+}
+body.instant .ss_container .ss .ss_imgs img {
+    visibility: hidden;
+}
+.invisible {
+    visibility: hidden;
+}
+
+.ss_container .ss_ctrl {
+    position: absolute;
+    z-index: 2;
+    bottom: 10px;
+    width: 100%;
+    height: 20px;
+}
+
+.ss_container .ss_ctrl img {
+    position: absolute;
+    margin: 2px;
+    width: 16px;
+    height: 16px;
+}
+
+#ss_back { left: 0; }
+#ss_fwd { right: 0; }
+
+.ss_container .ss_ctrl .ss_dots {
+    height: 16px;
+    margin: 0 auto;
+    width: 80px;
+}
+.ss_container .ss_ctrl .ss_dots div {
+    margin: 5px;
+    height: 8px;
+    width: 8px;
+    border-radius: 6px;
+    background-color: black;
+    float: left;
+}
+
+.ss_container .ss_ctrl .ss_dots div.selected {
+    background-color: white;
+}
+
+.content {
+    width: 100%;
+}
+
+.content h1 {
+    position: relative;
+    width: 100%;
+    height: 40px;
+    margin: 0 auto;
+    text-align: center;
+    font-size: 18px;
+    line-height: 40px;
+    cursor: default;
+}
+
+.content h1 #expand {
+    position: absolute;
+    overflow: hidden;
+    top: 7px;
+    right: 10px;
+    width: 25px;
+    height: 25px;
+}
+.content h1 #expand img { position: absolute; left: 0; }
+.content h1 #expand .plus { top: 0; }
+.content h1 #expand .minus { top: 25px; }
+.content .open #expand .plus { top: 25px; }
+.content .open #expand .minus { top: 0; }
+
+.content div {
+    -webkit-transition: max-height 500ms ease-out;
+    -moz-transition: max-height 500ms ease-out;
+    -o-transition: max-height 500ms ease-out;
+    -ms-transition: max-height 500ms ease-out;
+    transition: max-height 500ms ease-out;
+
+    -webkit-transform: translateZ(0);
+
+    margin-left: auto;
+    margin-right: auto;
+    width: 85%;
+    display: block;
+    font-size: 16px;
+    line-height: 24px;
+    overflow: hidden;
+/*    max-height: 600px;*/
+/*    max-height: 0px;*/
+    margin: 0 auto;
+}
+
+body.instant .content div {
+    -webkit-transition-duration: 0s;
+    -moz-transition-duration: 0s;
+    -o-transition-duration: 0s;
+    -ms-transition-duration: 0s;
+    transition-duration: 0s;
+}
+
+body.instant .ss_container .ss .ss_imgs {
+    -webkit-transition-duration: 0s;
+    -moz-transition-duration: 0s;
+    -o-transition-duration: 0s;
+    -ms-transition-duration: 0s;
+    transition-duration: 0s;
+}
+
+.content div.secret {
+    position: absolute;
+    left: -3000px;
+    height: auto;
+    width: 85%;
+}
+
+.content div.hidden {
+    max-height: 0;
+}
+
+.footer { 
+    width: 100%;
+    height: 40px;
+
+}
+.footer div {
+    width: 49%;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 40px;
+}
+.footer #home { float: left; }
+.footer #about { float: right; }
+
+.gradient {
+    /* cross browser compatability in order, no css3, ie, moz, webkit */
+    background: #ddd;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#dddddd', endColorstr='#aaaaaa');
+    background: -moz-linear-gradient(top,  #dddddd,  #aaaaaa);
+    background: -webkit-gradient(linear, left top, left bottom, from(#dddddd), to(#aaaaaa));
+}
