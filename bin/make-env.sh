@@ -4,7 +4,7 @@ PROJDIR="`dirname $BINDIR`"
 DOWN_DIR="$HOME/Downloads"
 AE_DIR="$PROJDIR/appengine"
 AE_BIN="$AE_DIR/google_appengine"
-ENV_DIR="$PROJDIR/mobile-museum"
+ENV_DIR="$PROJDIR/env"
 
 AE_FILES=http://googleappengine.googlecode.com/files
 AE_VERSION="1.6.1"
