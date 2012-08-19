@@ -185,22 +185,6 @@ class ItemHandler(UserHandler, JSONHandler):
             item.delete()
 
 
-class MediaListHandler(UserHandler):
-    @require_admin_login
-    def get(self):
-        username = self.user and self.user.nickname()
-        render_data = {
-            'images': models.MediaModel.all(),
-            'sign_in': users.create_login_url('/'),
-            'sign_out': users.create_logout_url('/'),
-            'username': username,
-            'site_name': settings.SITE_NAME,
-            'debug': settings.DEBUG
-        }
-        result = template.render('rest/templates/media-upload.html', render_data)
-        self.response.out.write(result)
-
-
 class MediaHandler(webapp.RequestHandler):
     def get(self, name):
         size = self.request.get('size', 'mobile')
@@ -315,6 +299,12 @@ class AdminPageHandler(PageHandler):
     @require_admin_login
     def get(self, *args):
         super(AdminPageHandler, self).get(*args)
+
+
+class MediaListHandler(AdminPageHandler):
+    def prepare(self):
+        super(MediaListHandler, self).prepare()
+        self.render_data['images'] = models.MediaModel.all()
 
 
 def pretty_json(json_dict):
