@@ -45,6 +45,9 @@ namespace.module('seagtug.todos', function (exports, requires) {
 
         // Reference to this collection's model.
         model: Todo,
+        // BUG: This should really use ?no-cache to get the most up to date list -
+        // but that impacts all the other item url's that are constructed from
+        // this one....how to fix?
         url: '/data/todo',
 
         // Filter down the list of all todo items that are finished.
