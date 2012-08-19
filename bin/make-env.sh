@@ -1,10 +1,10 @@
 #!/bin/bash
-BINDIR="$(cd `dirname $0` && pwd)"
-PROJDIR="`dirname $BINDIR`"
+BIN_DIR="$(cd `dirname $0` && pwd)"
+PROJ_DIR="`dirname $BIN_DIR`"
 DOWN_DIR="$HOME/Downloads"
-AE_DIR="$PROJDIR/appengine"
+ENV_DIR="$PROJ_DIR/env"
+AE_DIR="$ENV_DIR/appengine"
 AE_BIN="$AE_DIR/google_appengine"
-ENV_DIR="$PROJDIR/env"
 
 AE_FILES=http://googleappengine.googlecode.com/files
 AE_VERSION="1.7.0"
@@ -14,17 +14,17 @@ SETUP_TOOLS=setuptools-0.6c11-py2.7.egg
 SUDO=sudo
 
 if [ `uname` == "Darwin" ]; then
-    platform="Mac"
+    PLATFORM="Mac"
 elif [[ `uname` == *W32* ]]; then
-    platform="Windows"
+    PLATFORM="Windows"
     SUDO=""
     PYTHON_VER="2.7.3"
     PYTHON_CMD=python2.7.exe
 else
-    platform="Linux"
+    PLATFORM="Linux"
 fi
 
-echo "I think your machine is running $platform ..."
+echo "I think your machine is running $PLATFORM ..."
 
 # download <url> - do nothing if already downloaded
 function download {
@@ -57,11 +57,11 @@ function check_prog {
     type $1 > /dev/null 2>&1
 }
 
-cd "$PROJDIR"
+cd "$PROJ_DIR"
 
 if ! check_prog $PYTHON_CMD ; then
     echo "You need $PYTHON_CMD to use App Engine."
-    if [ $platform == "Windows" ]; then
+    if [ $PLATFORM = "Windows" ]; then
         download http://www.python.org/ftp/python/$PYTHON_VER/python-$PYTHON_VER.msi
         cd "$DOWN_DIR"
         msiexec -i $FILE
@@ -74,7 +74,7 @@ if ! check_prog $PYTHON_CMD ; then
 fi
 
 if ! check_prog curl; then
-    $SUDO apt-get install curl
+    sudo apt-get install curl
 fi
 
 if ! check_prog easy_install ; then
@@ -91,38 +91,41 @@ if ! check_prog virtualenv ; then
 fi
 
 read -p "Create local $PYTHON_CMD environment? (y/n): "
-if [ "$REPLY" = "y" ]; then
+if [ "$REPLY" == "y" ]; then
     rm -rf "$ENV_DIR"
     virtualenv --python=$PYTHON_CMD "$ENV_DIR"
-    if [ $platform = "Windows" ]; then
-        ln -f -s "$ENV_DIR/Scripts/activate.bat"
-    else
-        ln -f -s "$ENV_DIR/bin/activate"
-        source activate
+    source $BIN_DIR/use
+
+    echo -e "\nSetting up libraries for PIL.\n"
+    if [ $PLATFORM == "Linux" ]; then
+        sudo apt-get install libjpeg8 libjpeg62-dev libfreetype6 libfreetype6-dev
+        sudo ln -f -s /usr/lib/x86_64-linux-gnu/libjpeg.so /usr/lib
+        sudo ln -f -s /usr/lib/x86_64-linux-gnu/libfreetype.so /usr/lib
+        sudo ln -f -s /usr/lib/x86_64-linux-gnu/libz.so /usr/lib
     fi
+
     pip install PIL
 fi
 
 read -p "Install App Engine ($AE_VERSION)? (y/n): "
-if [ "$REPLY" = "y" ]; then
-    if [ $platform == "Windows" ]; then
+if [ "$REPLY" == "y" ]; then
+    if [ $PLATFORM == "Windows" ]; then
         download $AE_FILES/GoogleAppEngine-$AE_VERSION.msi
         cd "$DOWN_DIR"
         msiexec -i $FILE
         cd $PROJ_DIR
-    elif [ $platform == "Mac" ]; then
+    elif [ $PLATFORM == "Mac" ]; then
         download "$AE_FILES/GoogleAppEngineLauncher-$AE_VERSION.dmg"
         open "$DOWN_DIR/$FILE"
     else
         rm -rf appengine
         download_zip "$AE_FILES/google_appengine_$AE_VERSION.zip" "$AE_DIR"
-        ln -f -s $AE_BIN/*.py "$ENV_DIR/bin"
     fi
 fi
 
-if [ $platform == "Windows" ]; then
+if [ $PLATFORM == "Windows" ]; then
     echo "Open a Windows Command shell to use this environment."
     echo "And then type activate.bat"
 else
-    echo "Type 'source activate' to use this environment"
+    echo -e "\nType 'source bin/use' to use this environment."
 fi
