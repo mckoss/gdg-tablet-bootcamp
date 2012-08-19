@@ -16,6 +16,7 @@
   - No scroll page
   - Sidebar?
 - Build app.yaml from user customization file (e.g. dev name - not checked in)
+- Enable depth-limited traversal of JSON data.
 
 
 # Sample apps
@@ -42,5 +43,6 @@
 - Combine and minimize JS and CSS
 - Use memcache to retried rest_models -> datastore is slow
 - Measure download time and download bytes
-- Add qunit tests
+- Add qunit tests and python unit tests
+  - Data access
 - Windows and Mac installation

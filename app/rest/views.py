@@ -1,7 +1,7 @@
 import os
 import sys
 import logging
-import simplejson as json
+import json
 import traceback
 
 from google.appengine.api import users
@@ -297,6 +297,7 @@ class PageHandler(ParamHandler, UserHandler):
             'sign_out': users.create_logout_url('/'),
             'username': username,
             'site_name': settings.SITE_NAME,
+            'admin_url': settings.ADMIN_URL,
             'debug': settings.DEBUG
         })
 

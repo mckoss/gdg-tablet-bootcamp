@@ -125,9 +125,14 @@ Alternatively, you can deploy via the command line via:
 
     $ appcfg.py update app
 
-  [App Engine Admin Console]: https://appengine.google.com/
+Note: If you get an error "AttributeError: can't set attribute" you are probably not authenticating
+properly.  If you use two-factor authentication for your Google account, you will have to create
+an application specific password and use that to deploy to AppEngine.
 
-You can view an online version of the app at http://todoapp-mckoss.appspot.com/
+  [App Engine Admin Console]: https://appengine.google.com/
+  [application specific password]: https://accounts.google.com/b/2/IssuedAuthSubTokens
+
+You can view an online version of the app at http://gdg-tablet.appspot.com/
 
 To learn more about the application internals, visit the [Application Walkthrough].
 
