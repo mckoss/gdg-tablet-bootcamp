@@ -14,8 +14,8 @@
 
 {% block head_extra %}{% endblock %}
 {% endblock %}
-{% block navbar %}
 
+{% block body %}
 <div class="navbar navbar-fixed-top">
   <div class="navbar-inner">
     <div class="container-fluid">
@@ -43,6 +43,10 @@
       </div><!--/.nav-collapse -->
     </div>
   </div>
+</div>
+
+<div class="container-fluid">
+{% block content %} {% endblock %}
 </div>
 
 {% endblock %}

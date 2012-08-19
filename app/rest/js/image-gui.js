@@ -13,7 +13,7 @@ namespace.module('startpad.image-gui', function(exports, require) {
         'stringifyMaps': stringifyMaps
     });
 
-    
+
     // unique identifier counter for pictures and maps, incremented with each new one added
     //   initialized in loadPics() and loadMaps() respectively
     var pictureUID;
@@ -83,7 +83,7 @@ namespace.module('startpad.image-gui', function(exports, require) {
             '<img src="/images/arrow_fwd.png" class="fwd icon" />' +
             '<img src="/images/x.png" class="map-x" id="<%= map.id %>-map-x" ' +
                 'style="left: <%= map.x * 64 + 5 %>px; top: <%= map.y * 64 + 5 %>px" />' +
-                // this calculation does not take into account the offset, 
+                // this calculation does not take into account the offset,
                 //   the offset is corrected when the image loads.  It looks better
                 //   with this poor approximation done on creation than without it
           '</a>' +
@@ -92,7 +92,7 @@ namespace.module('startpad.image-gui', function(exports, require) {
           '<div id="<%= map.id %>-modal-body" class="modal-body">' +
             '<img id="<%= map.id %>-modal-img" class="modal-map" ' +
                 'src="/admin/media/<%= map.name %>?size=large" />' +
-            '<img id="<%= map.id %>-map-x" src="/images/x.png" class="modal-map-x" />' + 
+            '<img id="<%= map.id %>-map-x" src="/images/x.png" class="modal-map-x" />' +
           '</div>' +
           '<div class="modal-footer">' +
             '<a href="#" class="btn" data-dismiss="modal">Close</a>' +
@@ -133,7 +133,7 @@ namespace.module('startpad.image-gui', function(exports, require) {
         $container.find('.back').on('click', shiftImage.curry(array, id, 'back'));
         $container.find('.fwd').on('click', shiftImage.curry(array, id, 'fwd'));
 
-        if (which != 'map') { 
+        if (which != 'map') {
             return;
         }
 
@@ -248,11 +248,11 @@ namespace.module('startpad.image-gui', function(exports, require) {
 
         map.x = event.offsetX / mapSize[0];
         map.y = event.offsetY / mapSize[1];
-        
+
         positionModalX(map);
         positionThumbnailX(map);
     }
-    
+
     function onModalMapXClick(map, event) {
         var pixelOffset = []
         var percentOffset = [];
@@ -379,5 +379,5 @@ namespace.module('startpad.image-gui', function(exports, require) {
         arr[i1] = arr[i2];
         arr[i2] = temp;
     }
-    
+
 });

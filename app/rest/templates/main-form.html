@@ -10,14 +10,11 @@
 </script>
 {% endblock %}
 
-{% block body %}
-<div class="container-fluid">
+{% block content %}
   <h1>{{ site_name }} Database Home</h1>
   <ul id="schema-links-body"></ul>
 
   <script type="template" id="schema-links-template">
     <li><a href="/admin/forms/<%= model %>"><%= model %></a></li>
   </script>
-</div>
 {% endblock %}
-

@@ -1,40 +1,34 @@
 #all-thumbnails { margin: 0; padding: 0 15px 15px 15px; }
 
 .thumbnail-container {
-  position: relative;
-  margin: 5px;
-  width: 84px;
-  height: 100px;
   float: left;
-}
-
-.thumbnail-container a {
-  position: absolute; left: 0; top: 0;
+  position: relative;
+  margin: 0 5px 0 0;
   width: 84px;
-  height: 100px;
-  text-decoration: none;
+  height: 110px;
+  border: 1px solid red;
 }
 
-.thumbnail-container a div {
+.thumbnail {
   position: absolute;
-  top: 84px;
+  top: 10;
+  left: 10;
+  width: 64px;
+  height: 64px;
+  display: block;
+  border: 1px solid blue;
+}
+
+.thumbnail-container .label {
+  position: absolute;
+  top: 94px;
   left: 0;
-  font-size: 13px;
+  font-size: 12px;
   height: 16px;
   width: 84px;
   overflow: hidden;
   line-height: 16px;
   text-align: center;
-}
-
-.thumbnail-container a img {
-  position: absolute;
-}
-
-/* thumbnail is also a bootstrap class and these styles work with bootstrap */
-.thumbnail-container a .thumbnail {
-  margin: 5px;
-  display: block;
 }
 
 /*.thumbnail-container a .icon { width: 25px; height: 25px; opacity: 0; }*/
