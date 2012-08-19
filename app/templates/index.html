@@ -3,6 +3,14 @@
 {% block head %}
 
 <title>Backbone Demo: Todos</title>
+
+<!-- Fix the viewport -->
+<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1, maximum-scale=1" />
+<!-- Allow the user to "send link to desktop" on iOS and get a chromeless browser -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<!-- Prevent iOS from searching the page for telephone-like numbers and making them clickable -->
+<meta name="format-detection" content="telephone=no">
+
 <link href="/css/todos.css" media="all" rel="stylesheet" type="text/css"/>
 <script src="/js/libs/namespace-plus.js"></script>
 <script src="/js/libs/json2.js"></script>

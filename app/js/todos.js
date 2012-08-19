@@ -3,8 +3,13 @@
 //
 // 2012-01-10: mckoss Modified to use App Engine back end
 
-namespace.module('seagtug.todos', function (exports, requires) {
+namespace.module('gdg.todos', function (exports, requires) {
     $(document).ready(init);
+
+    var isTouchDevice;
+    var overflowing;
+    var touch;
+    var minDistance2 = 4 * 4;
 
     function init() {
         // Cache the template function for a single item.
@@ -14,6 +19,95 @@ namespace.module('seagtug.todos', function (exports, requires) {
         AppView.statsTemplate = _.template($('#stats-template').html());
 
         exports.app = new AppView();
+
+
+        // check if touch device (from Modernizr)
+        isTouchDevice = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
+
+        if (isTouchDevice) {
+            $(document).on('touchstart', function (e) {
+                if (e.target == $('body')[0]) {
+                    e.preventDefault();
+                }
+            });
+
+            $('#todo-list').on('touchstart', '.todo-text', onTodoTouchstart);
+            $('#todo-list').on('touchmove', '.todo-text', onTodoTouchmove);
+            $('#todo-list').on('touchend', '.todo-text', onTodoTouchend);
+        }
+
+        $(window).on('resize', onResize);
+    }
+
+    function onTodoTouchstart(event) {
+        if (event.target.classList == 'todo-text') {
+            event = exposeTouchEvent(event);
+            touch = [event.pageX, event.pageY];
+        }
+    }
+
+    function onTodoTouchmove(event) {
+        if (touch.length != 2) {
+            return;
+        }
+        event = exposeTouchEvent(event);
+        touch = [event.pageX, event.pageY];
+    }
+
+    function onTodoTouchend(event) {
+        if (touch.length != 2) {
+            return;
+        }
+        console.log('here');
+        var $target = $(event.target).closest('li');
+        event = exposeTouchEvent(event);
+        var point = [event.pageX, event.pageY];
+
+        console.log(distance2(touch, point));
+        if (distance2(touch, point) < minDistance2) {
+            console.log('hi');
+            $target.addClass('editing');
+            $target.find('input.todo-input').focus();
+        }
+    }
+
+    function distance2(p1, p2) {
+        console.log(p1[0], p1[1], p2[0], p2[1]);
+        return Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2);
+    }
+
+    function onResize() {
+        
+    }
+
+    function isOverflowing() {
+        var bodyHeight = $('body').css('height');
+        return parseInt(bodyHeight, 10) > window.innerHeight;
+    }
+
+    function getOrientation() {
+        if (window.matchMedia) {
+            var mql = window.matchMedia("(orientation: portrait)");
+            if (mql.matches) {
+                return 'portrait';
+            } else {
+                return 'landscape';
+            }
+            return;
+        }
+        if (window.innerWidth > window.innerHeight) {
+            return 'landscape';
+        } else {
+            return 'portrait';
+        }
+    }
+
+    // if is a touch event, expose the real touch event (to get at pageX/Y)
+    function exposeTouchEvent(e) {
+        if (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches.length > 0) {
+            return e.originalEvent.touches[0];
+        }
+        return e; // is not a touch event
     }
 
     // Todo Model
@@ -191,6 +285,7 @@ namespace.module('seagtug.todos', function (exports, requires) {
                 done:       Todos.done().length,
                 remaining:  Todos.remaining().length
             }));
+            overflowing = isOverflowing();
         },
 
         // Add a single todo item to the list by creating a view for it, and
@@ -234,4 +329,4 @@ namespace.module('seagtug.todos', function (exports, requires) {
 
     });
 
-}); // seagtug.todos
+}); // gdg.todos
