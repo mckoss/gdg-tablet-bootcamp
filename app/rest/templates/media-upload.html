@@ -26,7 +26,7 @@
     {% for image in images %}
     <div class="thumbnail-container">
       <a class="thumbnail" data-toggle="modal" href="#{{ image.key.name }}">
-        <img src="/admin/media/{{ image.key.name }}?size=thumbnail" />
+        <img class="thumbnail-image" src="/admin/media/{{ image.key.name }}?size=thumbnail" />
       </a>
       <a class="label" href="/admin/media/{{image.key.name}}?size=large">{{ image.key.name }}</a>
     </div>

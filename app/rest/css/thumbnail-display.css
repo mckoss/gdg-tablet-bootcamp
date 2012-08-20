@@ -8,7 +8,7 @@
   height: 100px;
   /*  border: 1px solid red;*/
 }
-
+/* boostrap adds styles for .thumbnail */
 .thumbnail {
   position: absolute;
   top: 0px;
@@ -20,8 +20,10 @@
   border: none;
 /*  border: 1px solid blue;*/
 }
-.thumbnail img {
-  position: absolute;
+
+.thumbnail img { position: absolute; }
+
+.thumbnail .thumbnail-image {
   padding: 4px;
   border: 1px solid #DDD;
   -webkit-border-radius: 4px;
@@ -35,7 +37,7 @@
   left: 50%;
   top: 50%;
 }
-
+/* boostrap adds styles for .label */
 .thumbnail-container .label {
   position: absolute;
   top: 84px;
@@ -46,27 +48,23 @@
   overflow: hidden;
   line-height: 16px;
   text-align: center;
-  padding: 0; /* overwrite bootstrap */
+  padding: 0;
 }
 
-/*.thumbnail-container a .icon { width: 25px; height: 25px; opacity: 0; }*/
-.thumbnail-container a .icon { width: 16px; height: 16px; opacity: 0; }
+.thumbnail .icon { width: 16px; height: 16px; opacity: 0; }
 
-.thumbnail-container a:hover .icon { opacity: 0.5; }
+.thumbnail:hover .icon { opacity: 0.5; }
 
-/*.thumbnail-container a .delete { left: 59px; top: 0; }*/
-.thumbnail-container a .delete { left: 68px; top: 0; }
-.thumbnail-container a .delete:hover { opacity: 1; }
+.thumbnail .delete { left: 68px; top: 0; }
+.thumbnail .delete:hover { opacity: 1; }
 
-/*.thumbnail-container a .back { left: 0px; top: 30px; }*/
-.thumbnail-container a .back { left: 0px; top: 34px; }
-.thumbnail-container a .back:hover { opacity: 0.8; }
+.thumbnail .back { left: 0px; top: 34px; }
+.thumbnail .back:hover { opacity: 1; }
 
-/*.thumbnail-container a .fwd { left: 59px; top: 30px; }*/
-.thumbnail-container a .fwd { left: 68px; top: 34px; }
-.thumbnail-container a .fwd:hover { opacity: 0.8; }
+.thumbnail .fwd { left: 68px; top: 34px; }
+.thumbnail .fwd:hover { opacity: 1; }
 
-.thumbnail-container a .map-x { width: 10px; height: 10px; }
+.thumbnail .map-x { width: 10px; height: 10px; }
 
 .modal-body { position: relative; max-height: 600px; }
 .modal-body .modal-image { width: 530px; }

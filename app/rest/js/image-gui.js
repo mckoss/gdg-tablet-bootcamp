@@ -22,7 +22,7 @@ namespace.module('startpad.image-gui', function(exports, require) {
     var pictures;
     var maps;
 
-    var IMAGE_MARGIN = 10;
+    var IMAGE_MARGIN = 5;
     var THUMB_X_SIZE = 10;
     var MODAL_X_SIZE = 20;
     var MODAL_BODY_WIDTH = 530;
@@ -42,18 +42,22 @@ namespace.module('startpad.image-gui', function(exports, require) {
 
     var pictureTemplate = _.template(
         '<div id="<%= picture.id %>-container" class="thumbnail-container">' +
-          '<a data-toggle="modal" href="#<%= picture.id %>-modal">' +
-            '<img src="/admin/media/<%= picture.name %>?size=thumbnail" class="thumbnail" />' +
-            '<div><%= picture.name %></div>' +
-            '<img src="/images/delete.png" class="delete icon" />' +
-            '<img src="/images/arrow_back.png" class="back icon" />' +
-            '<img src="/images/arrow_fwd.png" class="fwd icon" />' +
+          '<a class="thumbnail" data-toggle="modal" href="#<%= picture.id %>-modal">' +
+            '<img class="thumbnail-image" src="/admin/media/<%= picture.name %>?size=thumbnail" />' +
+            '<img class="delete icon" src="/images/delete.png" />' +
+            '<img class="back icon" src="/images/arrow_back.png" />' +
+            '<img class="fwd icon" src="/images/arrow_fwd.png" />' +
+          '</a>' +
+          '<a class=label href="/admin/media/<%= picture.name %>?size=large" target="blank">' + 
+            '<%= picture.name %>' + 
           '</a>' +
         '</div>' +
         '<div class="modal hide" id="<%= picture.id %>-modal">' +
           '<div id="<%= picture.id %>-modal-body" class="modal-body">' +
-            '<img id="<%= picture.id %>-modal-img" class="modal-image" ' +
-                'src="/admin/media/<%= picture.name %>?size=large" />' +
+            '<a href="/admin/media/<%= picture.name %>?size=large" target="blank">' +
+              '<img id="<%= picture.id %>-modal-img" class="modal-image" ' +
+                  'src="/admin/media/<%= picture.name %>?size=large" />' +
+            '</a>' +
           '</div>' +
            '<div class="modal-footer">' +
              '<a href="#" class="btn" data-dismiss="modal">Close</a>' +
@@ -75,17 +79,16 @@ namespace.module('startpad.image-gui', function(exports, require) {
 
     var mapTemplate = _.template(
         '<div id="<%= map.id %>-container" class="thumbnail-container">' +
-          '<a data-toggle="modal" href="#<%= map.id %>-modal">' +
-            '<img src="/admin/media/<%= map.name %>?size=thumbnail" class="thumbnail" />' +
-            '<div><%= map.name %></div>' +
-            '<img src="/images/delete.png" class="delete icon" />' +
-            '<img src="/images/arrow_back.png" class="back icon" />' +
-            '<img src="/images/arrow_fwd.png" class="fwd icon" />' +
-            '<img src="/images/x.png" class="map-x" id="<%= map.id %>-map-x" ' +
+          '<a class="thumbnail" data-toggle="modal" href="#<%= map.id %>-modal">' +
+            '<img class="thumbnail-image" src="/admin/media/<%= map.name %>?size=thumbnail" />' +
+            '<img class="delete icon" src="/images/delete.png" />' +
+            '<img class="back icon" src="/images/arrow_back.png" />' +
+            '<img class="fwd icon"src="/images/arrow_fwd.png" />' +
+            '<img class="map-x" id="<%= map.id %>-map-x" src="/images/x.png" ' +
                 'style="left: <%= map.x * 64 + 5 %>px; top: <%= map.y * 64 + 5 %>px" />' +
-                // this calculation does not take into account the offset,
-                //   the offset is corrected when the image loads.  It looks better
-                //   with this poor approximation done on creation than without it
+          '</a>' +
+          '<a class="label" href="/admin/media/<%= map.name %>?size=large" target="blank">' +
+            '<%= map.name %>' +
           '</a>' +
         '</div>' +
         '<div class="modal hide" id="<%= map.id %>-modal">' +
@@ -95,6 +98,9 @@ namespace.module('startpad.image-gui', function(exports, require) {
             '<img id="<%= map.id %>-map-x" src="/images/x.png" class="modal-map-x" />' +
           '</div>' +
           '<div class="modal-footer">' +
+            '<a class="btn" href="/admin/media/<%= map.name %>?size=large" target="blank">' +
+              'Fullsize' +
+            '</a>' +
             '<a href="#" class="btn" data-dismiss="modal">Close</a>' +
           '</div>' +
         '</div>');
@@ -127,29 +133,29 @@ namespace.module('startpad.image-gui', function(exports, require) {
             array = pictures;
         }
 
-        $container.find('.thumbnail').on('load', onImageLoad.curry(which));
+        $container.find('.thumbnail-image').one('load', onImageLoad.curry(which)).each(function () {
+            if (this.complete) $(this).load();
+        });
         $container.find('.delete').on('click', onDeleteClick.curry(id, which));
 
         $container.find('.back').on('click', shiftImage.curry(array, id, 'back'));
         $container.find('.fwd').on('click', shiftImage.curry(array, id, 'fwd'));
 
-        if (which != 'map') {
-            return;
+        if (which == 'map') {
+            var $modal = $('#' + id + '-modal');
+            var $modalMap = $modal.find('.modal-map');
+            var $modalMapX = $modal.find('.modal-map-x');
+
+            $modalMap.on('mousedown', preventDefaultStopProp);
+            $modalMapX.on('mousedown', preventDefaultStopProp);
+
+            $modal.find('.modal-map').on('load', onModalMapLoad.curry(map));
+
+            $modalMap.on('click', onModalMapClick.curry(map));
+            $modalMapX.on('click', onModalMapXClick.curry(map));
+
+            $modal.on('shown', positionModalX.curry(map));
         }
-
-        var $modal = $('#' + id + '-modal');
-        var $modalMap = $modal.find('.modal-map');
-        var $modalMapX = $modal.find('.modal-map-x');
-
-        $modalMap.on('mousedown', preventDefaultStopProp);
-        $modalMapX.on('mousedown', preventDefaultStopProp);
-
-        $modal.find('.modal-map').on('load', onModalMapLoad.curry(map));
-
-        $modalMap.on('click', onModalMapClick.curry(map));
-        $modalMapX.on('click', onModalMapXClick.curry(map));
-
-        $modal.on('shown', positionModalX.curry(map));
     }
 
     function addImage(which, event) {
@@ -195,15 +201,18 @@ namespace.module('startpad.image-gui', function(exports, require) {
     }
 
     function onImageLoad(which, event) {
-        var offset = [0, 0];
-        if (this.width > this.height) {
-            offset[1] = (64 - this.height) / 2;
-            $(this).css('top', offset[1]);
-        } else {
-            offset[0] = (64 - this.width) / 2;
-            $(this).css('left', offset[0]);
-        }
+        $(this).addClass('centered');
+        var ml = -(this.width + 10) / 2;
+        var mt = -(this.height + 10) / 2
+        $(this).css('margin-left', ml);
+        $(this).css('margin-top', mt);
+
         if (which == 'map') {
+            var offset = [0, 0];
+            // 74=internal width of .thumbnail, 5=padding + border
+            offset[0] = 74 / 2 + ml + 5;
+            offset[1] = 74 / 2 + mt + 5;
+
             // get the id from the id field of this image's container
             var id = $(this).parents('.thumbnail-container')[0].id.split('-')[0];
 
@@ -266,6 +275,11 @@ namespace.module('startpad.image-gui', function(exports, require) {
 
         map.x += percentOffset[0];
         map.y += percentOffset[1];
+
+        map.x = map.x < 0 ? 0 : map.x;
+        map.x = map.x > 1 ? 1 : map.x;
+        map.y = map.y < 0 ? 0 : map.y;
+        map.y = map.y > 1 ? 1 : map.y;
 
         positionModalX(map);
         positionThumbnailX(map);
