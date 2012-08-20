@@ -9,27 +9,28 @@
 </script>
 {% endblock %}
 
-{% block body %}
+{% block content %}
 
+  <h2>Upload an Image.</h2>
   <div id="upload-form-container">
-    <form action="/image-upload" enctype="multipart/form-data" method="post">
-      <label for="img_name">Name</label>
-      <input id="img_name" type="text" name="img_name"/>
+    <form action="/admin/image-upload" enctype="multipart/form-data" method="post">
       <input type="file" name="img"/>
       <input type="submit" value="Upload" />
     </form>
   </div>
 
 
+  <h2>Current Images</h2>
   <div id="all-thumbnails">
 
     {% for image in images %}
     <div class="thumbnail-container">
-      <a data-toggle="modal" href="#{{ image.key.name }}">
-        <img src="/admin/media/{{ image.key.name }}?size=thumbnail" class="thumbnail" />
-        <div>{{ image.key.name }}</div>
+      <a class="thumbnail" data-toggle="modal" href="#{{ image.key.name }}">
+        <img src="/admin/media/{{ image.key.name }}?size=thumbnail" />
       </a>
+      <a class="label" href="/admin/media/{{image.key.name}}?size=large">{{ image.key.name }}</a>
     </div>
+
     <div class="modal hide" id="{{ image.key.name }}">
       <div class="modal-body" id="{{ image.key.name }}-body">
         <a href="/admin/media/{{ image.key.name }}?size=large" target="blank"></a>

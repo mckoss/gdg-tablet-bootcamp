@@ -1,7 +1,7 @@
 from datetime import datetime
 import time
 import logging
-import simplejson as json
+import json
 
 from google.appengine.ext import db
 from google.appengine.api.datastore_errors import *

@@ -1,5 +1,5 @@
 import views
-from views import AdminPageHandler
+from views import AdminPageHandler, MediaListHandler
 
 import models
 
@@ -17,12 +17,13 @@ def get_paths():
 
         # Admin views
         ('/admin', using('admin.html')),
-        # TODO       ('/admin/help', using('help.html')),
+        ('/admin/help', using('help.html')),
         ('/admin/forms', using('main-form.html',
                                {'models': models.rest_models.keys()})),
-        ('/admin/media', views.MediaListHandler),
         ('/admin/forms/(\w+)', using('list-form.html')),
         ('/admin/forms/(\w+)/(\d+)', using('item-form.html')),
+
+        ('/admin/media', MediaListHandler.params('media-upload.html', package='rest')),
         ('/admin/media/([a-zA-Z0-9_\-\.]+)', views.MediaHandler),
-        ('/image-upload', views.UploadHandler),
+        ('/admin/image-upload', views.UploadHandler),
         ]

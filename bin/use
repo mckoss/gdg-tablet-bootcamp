@@ -9,3 +9,4 @@ PATH="$BIN_DIR:$AE_BIN:$PATH"
 
 alias home="cd $PROJ_DIR"
 alias run-app="dev_appserver.py $PROJ_DIR/app"
+alias deploy="appcfg.py update $PROJ_DIR/app"

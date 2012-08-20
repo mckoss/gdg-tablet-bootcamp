@@ -1,7 +1,8 @@
 import os
 import sys
+import re
 import logging
-import simplejson as json
+import json
 import traceback
 
 from google.appengine.api import users
@@ -185,69 +186,6 @@ class ItemHandler(UserHandler, JSONHandler):
             item.delete()
 
 
-class MediaListHandler(UserHandler):
-    @require_admin_login
-    def get(self):
-        username = self.user and self.user.nickname()
-        render_data = {
-            'images': models.MediaModel.all(),
-            'sign_in': users.create_login_url('/'),
-            'sign_out': users.create_logout_url('/'),
-            'username': username,
-            'site_name': settings.SITE_NAME,
-            'debug': settings.DEBUG
-        }
-        result = template.render('rest/templates/media-upload.html', render_data)
-        self.response.out.write(result)
-
-
-class MediaHandler(webapp.RequestHandler):
-    def get(self, name):
-        size = self.request.get('size', 'mobile')
-        media = models.MediaModel.get_by_key_name(name)
-
-        if media is None or \
-                (media.thumbnail is None and media.mobile is None and media.large is None):
-            self.response.out.write('no image found')
-            return
-
-        self.response.headers['Content-Type'] = 'image'
-        if size == 'thumbnail':
-            self.response.out.write(media.thumbnail)
-        elif size == 'large' and media.large is not None:
-            self.response.out.write(media.large)
-        else:
-            self.response.out.write(media.mobile)
-
-
-class UploadHandler(webapp.RequestHandler):
-    def post(self):
-        model = models.MediaModel.get_or_insert(self.request.get('img_name'))
-        image_data = self.request.get('img')
-
-        image_object = images.Image(image_data)       # convert image to GAE image object for manipulation
-        image_object._update_dimensions()             # make ._height and ._width accurate (not None)
-
-        # scale image for different sizes, don't ever blow it up, large size not always produced
-        if image_object._width > 960 or image_object._height > 960:
-            large = images.resize(image_data, IMAGE_SIZE_LARGE, IMAGE_SIZE_LARGE, images.JPEG)
-            model.large = large
-        else:
-            model.large = None
-
-        if image_object._width > 480 or image_object._height > 480:
-            mobile = images.resize(image_data, IMAGE_SIZE_MOBILE, IMAGE_SIZE_MOBILE, images.JPEG)
-            model.mobile = mobile
-        else:
-            model.mobile = image_data
-
-        thumbnail = images.resize(image_data, IMAGE_SIZE_THUMBNAIL, IMAGE_SIZE_THUMBNAIL, images.JPEG)
-        model.thumbnail = thumbnail
-
-        model.put()
-        self.redirect('/admin/media')
-
-
 def filter_query_by_prefix(query, model, property_name, prefix):
     last_char = chr(ord(prefix[-1]) + 1)
     logging.info("Prefix filter: '%s' <= %s < '%s'" %
@@ -297,6 +235,7 @@ class PageHandler(ParamHandler, UserHandler):
             'sign_out': users.create_logout_url('/'),
             'username': username,
             'site_name': settings.SITE_NAME,
+            'admin_url': settings.ADMIN_URL,
             'debug': settings.DEBUG
         })
 
@@ -316,6 +255,75 @@ class AdminPageHandler(PageHandler):
         super(AdminPageHandler, self).get(*args)
 
 
+class MediaListHandler(AdminPageHandler):
+    def prepare(self):
+        super(MediaListHandler, self).prepare()
+        self.render_data['images'] = models.MediaModel.all()
+
+
+class MediaHandler(webapp.RequestHandler):
+    def get(self, name):
+        size = self.request.get('size', 'mobile')
+        media = models.MediaModel.get_by_key_name(name)
+
+        if media is None or \
+                (media.thumbnail is None and media.mobile is None and media.large is None):
+            self.error(404)
+            self.response.out.write('No image named: ' % name)
+            return
+
+        self.response.headers['Content-Type'] = 'image'
+        if size == 'thumbnail':
+            self.response.out.write(media.thumbnail)
+        elif size == 'large' and media.large is not None:
+            self.response.out.write(media.large)
+        else:
+            self.response.out.write(media.mobile)
+
+
+class UploadHandler(UserHandler):
+    @require_admin_login
+    def post(self):
+        name = slugify(self.request.POST['img'].filename[:32])
+        logging.info("name: %s", name)
+        media = models.MediaModel.get_or_insert(name)
+        image_data = self.request.get('img')
+
+        image_object = images.Image(image_data)       # convert image to GAE image object for manipulation
+        image_object._update_dimensions()             # make ._height and ._width accurate (not None)
+
+        # scale image for different sizes, don't ever blow it up, large size not always produced
+        if image_object._width > 960 or image_object._height > 960:
+            large = images.resize(image_data, IMAGE_SIZE_LARGE, IMAGE_SIZE_LARGE, images.JPEG)
+            media.large = large
+        else:
+            media.large = None
+
+        if image_object._width > 480 or image_object._height > 480:
+            mobile = images.resize(image_data, IMAGE_SIZE_MOBILE, IMAGE_SIZE_MOBILE, images.JPEG)
+            media.mobile = mobile
+        else:
+            media.mobile = image_data
+
+        thumbnail = images.resize(image_data, IMAGE_SIZE_THUMBNAIL, IMAGE_SIZE_THUMBNAIL, images.JPEG)
+        media.thumbnail = thumbnail
+
+        media.put()
+        self.redirect('/admin/media')
+
+
 def pretty_json(json_dict):
     return json.dumps(json_dict, sort_keys=True, indent=2,
                       separators=(',', ': '), cls=models.ModelEncoder)
+
+
+reg_nonchar = re.compile(r"[^a-zA-Z0-9]")
+reg_dashes = re.compile(r"[\-]+")
+reg_outer_dashes = re.compile(r"(^-+)|(-+$)")
+
+def slugify(s):
+    """ Convert runs of all non-alphanumeric characters to single dashes. """
+    s = reg_nonchar.sub('-', s).lower()
+    s = reg_dashes.sub('-', s)
+    s = reg_outer_dashes.sub('', s)
+    return s
