@@ -107,8 +107,10 @@ namespace.module('startpad.json-forms', function(exports, require) {
             return;
         }
 
-        var $images = $('.thumbnail');
-        $images.on('load', onImageLoad);
+        var $images = $('.thumbnail').find('img');
+        $images.one('load', onImageLoad).each(function () {
+            if (this.complete) $(this).load();
+        });
         // $images.on('error', onImageError); // removing image is not desired behavior
 
         var $modals = $('.modal');
@@ -119,14 +121,12 @@ namespace.module('startpad.json-forms', function(exports, require) {
     }
 
     function onImageLoad(event) {
-        var offset = [];
-        if (this.width > this.height) {
-            offset[1] = (64 - this.height) / 2;
-            $(this).css('top', offset[1]);
-        } else {
-            offset[0] = (64 - this.width) / 2;
-            $(this).css('left', offset[0]);
-        }
+        // only on load add left: 50%; top: 50%; so less jarring visually
+        $(this).addClass('centered');
+
+        // 10 is padding + border set in thumbnail
+        $(this).css('margin-left', -(this.width + 10) / 2); 
+        $(this).css('margin-top', -(this.height + 10) / 2);
     }
 
     // on image load error, remove the whole thumbnail and modal

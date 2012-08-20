@@ -284,7 +284,8 @@ class MediaHandler(webapp.RequestHandler):
 class UploadHandler(UserHandler):
     @require_admin_login
     def post(self):
-        name = slugify(self.request.POST['img'].filename[:32])
+        filename = self.request.POST['img'].filename.split('.')[0]
+        name = slugify(filename[:32])
         logging.info("name: %s", name)
         media = models.MediaModel.get_or_insert(name)
         image_data = self.request.get('img')
