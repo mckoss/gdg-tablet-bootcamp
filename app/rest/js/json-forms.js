@@ -33,7 +33,7 @@ namespace.module('startpad.json-forms', function(exports, require) {
             '<label><%- name %>:</label>' +
             '<div id="<%- name %>"><%- value %></div>'),
 
-        'computed': _.template('<div style="width: 100%; overflow: auto;"><%= value %></div>'),
+        'computed': _.template('<div style="width: 100%; overflow: hidden;"><%= value %></div>'),
 
         'reference': _.template(
             '<label for="<%- name %>"><%- name %>:</label>' +
@@ -283,8 +283,11 @@ namespace.module('startpad.json-forms', function(exports, require) {
             }
             result[field.id] = $(field).val();
         }
-        result['images'] = imageGUI.stringifyPictures();
-        result['mapLocations'] = imageGUI.stringifyMaps();
+
+        imageGUI.getImageFields(result);
+
+        //result['images'] = imageGUI.stringifyImages();
+        //result['mapLocations'] = imageGUI.stringifyMaps();
         return result;
     }
 
