@@ -80,7 +80,7 @@ namespace.module('startpad.json-forms', function(exports, require) {
         $.ajax({
             // Override default caching since the list is likely to change frequently
             // while editing.
-            url: '/data/' + pageInfo.model + '?no-cache',
+            url: '/data/' + pageInfo.model,
             success: function (result) {
                 var listHTML = ""
                 for (var i = 0; i < result.length; i++) {
@@ -125,7 +125,7 @@ namespace.module('startpad.json-forms', function(exports, require) {
         $(this).addClass('centered');
 
         // 10 is padding + border set in thumbnail
-        $(this).css('margin-left', -(this.width + 10) / 2); 
+        $(this).css('margin-left', -(this.width + 10) / 2);
         $(this).css('margin-top', -(this.height + 10) / 2);
     }
 
@@ -155,7 +155,7 @@ namespace.module('startpad.json-forms', function(exports, require) {
 
         $('#_save').click(onSave);
         $('#_delete').click(onDelete);
-        
+
         $.ajax({
             url: '/data/' + pageInfo.model + '/' + pageInfo.id,
             success: function (result) {
