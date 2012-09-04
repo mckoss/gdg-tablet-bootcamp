@@ -5,11 +5,11 @@ import os
 
 import settings
 
-APP_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+APP_PATH = os.path.dirname(os.path.abspath(__file__))
 
-SCRIPT_INCLUDE = '<script defer type="text/javascript" src="%s"></script>'
+SCRIPT_INCLUDE = '<script type="text/javascript" src="%s"></script>'
 
-script_precedence = ['jquery.js', 'namespace-plus.js']
+script_precedence = ['jquery.js', 'namespace-plus.js', 'underscore.js', 'bootstrap.js']
 script_skip = ['combined.js', 'combined-min.js']
 
 
@@ -26,7 +26,6 @@ def script_paths(base_dir):
         n2 = script_precedence.index(s2) if s2 in script_precedence else 999
         return n1 - n2
 
-    import pdb; pdb.set_trace()
     crawl_dir = os.path.join(APP_PATH, base_dir)
     if settings.COMBINED:
         return ['combined.js']
