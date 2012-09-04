@@ -5,3 +5,5 @@ env/*
 .DS_Store
 env/*
 activate
+combined.js
+combined-min.js
