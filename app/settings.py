@@ -3,7 +3,7 @@ import os
 SITE_NAME = "GDG Tablet Sample"
 
 DEBUG = True
-COMBINED = False
+COMBINED = True
 
 # App Engine specific variables.
 APP_ID = os.environ.get('APPLICATION_ID')

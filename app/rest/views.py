@@ -16,6 +16,7 @@ import models
 import includes
 
 admin_scripts = None
+app_scripts = None
 
 JSON_MIMETYPE = 'application/json'
 JSON_MIMETYPE_CS = JSON_MIMETYPE + '; charset=utf-8'
@@ -232,11 +233,13 @@ class PageHandler(ParamHandler, UserHandler):
         self.render_data = render_data or {}
 
     def prepare(self):
-        global admin_scripts
+        global admin_scripts, app_scripts
 
         username = self.user and self.user.nickname()
         if admin_scripts is None:
-            admin_scripts = includes.script_includes('rest')
+            admin_scripts = includes.script_includes('rest/js')
+        if app_scripts is None:
+            app_scripts = includes.script_includes('js')
         self.render_data.update({
             'sign_in': users.create_login_url('/'),
             'sign_out': users.create_logout_url('/'),
@@ -246,6 +249,7 @@ class PageHandler(ParamHandler, UserHandler):
             'debug': settings.DEBUG,
             'manifest': settings.MANIFEST,
             'admin_scripts': admin_scripts,
+            'app_scripts': app_scripts,
         })
 
     def get(self, *args):
