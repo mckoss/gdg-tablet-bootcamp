@@ -21,7 +21,6 @@ APP_PATH = os.path.join(ROOT_PATH, 'app')
 sys.path.insert(0, APP_PATH)
 
 import settings
-import includes
 
 # See http://code.google.com/closure/compiler/docs/gettingstarted_api.html
 CLOSURE_API = 'http://closure-compiler.appspot.com/compile'
@@ -158,30 +157,28 @@ def closure_compiler(js_code):
     return (HASH_PREFIX % hashlib.sha256(js_code).hexdigest()) + output['compiledCode']
 
 
-def combine_javascript(base_dir):
-    paths = includes.script_paths(base_dir)
-    js_dir = os.path.join(APP_PATH, base_dir)
+def combine_javascript():
+    for app in settings.SCRIPTS:
+        js_dir = os.path.join(APP_PATH, 'js')
 
-    js_code = ''
-    for file_name in paths:
-        base_name = os.path.split(file_name)[-1]
-        with open(os.path.join(js_dir, file_name)) as js_file:
-            js_code += "\n/* %s */\n" % base_name
-            js_code += js_file.read()
+        js_code = ''
+        for file_name in settings.SCRIPTS[app]:
+            with open(os.path.join(js_dir, file_name + '.js')) as js_file:
+                js_code += "\n/* %s */\n" % file_name
+                js_code += js_file.read()
 
-    print "Combining files into %s/combined.js." % js_dir
-    with open(os.path.join(js_dir, 'combined.js'), 'w') as combined_file:
-        combined_file.write(js_code)
+        print "Combining files into %s-combined.js." % app
+        with open(os.path.join(js_dir, '%s-combined.js' % app), 'w') as combined_file:
+            combined_file.write(js_code)
 
-    print "Combining files into %s/combined-min.js." % js_dir
-    with open(os.path.join(js_dir, 'combined-min.js'), 'w') as combined_min_file:
-        minified = closure_compiler(js_code)
-        combined_min_file.write(minified)
+        print "Combining files into %s-combined-min.js." % app
+        with open(os.path.join(js_dir, '%s-combined-min.js' % app), 'w') as combined_min_file:
+            minified = closure_compiler(js_code)
+            combined_min_file.write(minified)
 
 
 def main():
-    combine_javascript('js')
-    combine_javascript('rest/js')
+    combine_javascript()
 
 
 if __name__ == '__main__':
