@@ -13,6 +13,9 @@ from google.appengine.api import images
 import settings
 
 import models
+import includes
+
+admin_scripts = None
 
 JSON_MIMETYPE = 'application/json'
 JSON_MIMETYPE_CS = JSON_MIMETYPE + '; charset=utf-8'
@@ -229,14 +232,20 @@ class PageHandler(ParamHandler, UserHandler):
         self.render_data = render_data or {}
 
     def prepare(self):
+        global admin_scripts
+
         username = self.user and self.user.nickname()
+        if admin_scripts is None:
+            admin_scripts = includes.script_includes('rest')
         self.render_data.update({
             'sign_in': users.create_login_url('/'),
             'sign_out': users.create_logout_url('/'),
             'username': username,
             'site_name': settings.SITE_NAME,
             'admin_url': settings.ADMIN_URL,
-            'debug': settings.DEBUG
+            'debug': settings.DEBUG,
+            'manifest': settings.MANIFEST,
+            'admin_scripts': admin_scripts,
         })
 
     def get(self, *args):

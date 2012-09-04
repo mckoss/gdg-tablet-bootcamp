@@ -5,6 +5,7 @@ build.py - Combine (and minify) javascript files in js directory.
 
 import re
 import os
+import sys
 import stat
 import hmac
 import hashlib
@@ -15,10 +16,16 @@ from datetime import datetime
 from fnmatch import fnmatch
 import json
 
+ROOT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+APP_PATH = os.path.join(ROOT_PATH, 'app')
+sys.path.insert(0, APP_PATH)
+
+import settings
+import includes
+
 # See http://code.google.com/closure/compiler/docs/gettingstarted_api.html
 CLOSURE_API = 'http://closure-compiler.appspot.com/compile'
 
-APP_PATH = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'app'))
 
 
 def update_manifest(explicit=False):
@@ -128,6 +135,8 @@ def print_closure_messages(json, prop):
                              message.get('error', '') + message.get('warning', ''))
 
 
+HASH_PREFIX = '/* Source hash: %s */\n'
+
 def closure_compiler(js_code):
     params = [
         ('compilation_level', 'SIMPLE_OPTIMIZATIONS'),
@@ -144,52 +153,35 @@ def closure_compiler(js_code):
     output = json.loads(output)
 
     print_closure_messages(output, 'errors')
-    print_closure_messages(output, 'warnings')
+    # print_closure_messages(output, 'warnings')
 
-    return output['compiledCode']
-
-
-def find_js_files():
-    """ Return {"dir_name": [files], ... } for all directories titled 'js'. """
-    results = {}
-    target = None
-    for root, dirs, files in os.walk(APP_PATH):
-        if root.endswith('/js'):
-            target = root
-            results[target] = []
-        for file_name in files:
-            if file_name == 'combined.js':
-                continue
-            if file_name.endswith('.js'):
-                results[target].append(os.path.join(root, file_name))
-
-    return results
+    return (HASH_PREFIX % hashlib.sha256(js_code).hexdigest()) + output['compiledCode']
 
 
-def combine_javascript():
-    import pprint
-    js_dirs = find_js_files()
-    for js_dir in js_dirs:
+def combine_javascript(base_dir):
+    paths = includes.script_paths(base_dir)
+    js_dir = os.path.join(APP_PATH, base_dir)
 
-        js_code = ''
-        for file_name in js_dirs[js_dir]:
-            base_name = os.path.split(file_name)[-1]
-            with open(file_name) as js_file:
-                js_code += "\n/* %s */\n" % base_name
-                js_code += js_file.read()
+    js_code = ''
+    for file_name in paths:
+        base_name = os.path.split(file_name)[-1]
+        with open(os.path.join(js_dir, file_name)) as js_file:
+            js_code += "\n/* %s */\n" % base_name
+            js_code += js_file.read()
 
-        print "Combining files into %s/combined.js." % js_dir
-        with open(os.path.join(js_dir, 'combined.js'), 'w') as combined_file:
-            combined_file.write(js_code)
+    print "Combining files into %s/combined.js." % js_dir
+    with open(os.path.join(js_dir, 'combined.js'), 'w') as combined_file:
+        combined_file.write(js_code)
 
-        print "Combining files into %s/combined-min.js." % js_dir
-        with open(os.path.join(js_dir, 'combined-min.js'), 'w') as combined_min_file:
-            minified = closure_compiler(js_code)
-            combined_min_file.write(minified)
+    print "Combining files into %s/combined-min.js." % js_dir
+    with open(os.path.join(js_dir, 'combined-min.js'), 'w') as combined_min_file:
+        minified = closure_compiler(js_code)
+        combined_min_file.write(minified)
 
 
 def main():
-    combine_javascript()
+    combine_javascript('js')
+    combine_javascript('rest/js')
 
 
 if __name__ == '__main__':
