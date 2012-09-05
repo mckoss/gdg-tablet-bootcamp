@@ -28,18 +28,31 @@ the app to make it do what you want it to.
 
 ## What You'll Do
 
+### Lesson 1 - Seting up your Development Environment and Deploying to App Engine
+
 1. Setup your development environment to build an [App Engine] application.
 2. Deploy your application to Google's App Engine cloud hosting service.
-3. Learn how a web app is built on App Engine (pages rendering and data storage).
-4. Writing modular JavaScript code using namespaces.
-5. Design an HTML app for different screen dimensions using [Twitter Bootstrap].
-6. Make your app high performance by minifying and combining your client javascript code.
-7. Package your web app so it can be run in offline mode - especially hanlding "sometimes connected"
+
+### Lesson 2 - ToDo Sample Application - The Server Side
+
+1. Learn how a web app is built on App Engine (pages rendering and data storage).
+2. Define a "data model" for saving and retrieving information for your users.
+3. Using the Admin interface.
+4. The data interface - JSON/REST.
+
+### Lesson 3 - ToDo Sample Application - HTML Client Application
+
+1. Writing modular JavaScript code using namespaces.
+2. Using [Backbone.js] to coordinate client side views and data.
+3. User authentication and sign-in (using Google accounts).
+
+### Lesson 4 - Wiki Reader - Advanced HTML web app
+
+1. Use client-side application navigation through use of the HTML "anchor" (#) url.
+2. Design an HTML app for different screen dimensions using [Twitter Bootstrap].
+3. Make your app high performance by minifying and combining your client javascript code.
+4. Package your web app so it can be run in offline mode - especially hanlding "sometimes connected"
    devices (application cache and offline storage).
-8. Handle user authentication and sign-in (using Google accounts).
-9. Define a "data model" for saving and retrieving information for your users.
-10. Using [Backbone.js] to coordinate client side views and data.
-11. Use client-side application navigation through use of the HTML "anchor" (#) url.
 
 
 # What to Bring
