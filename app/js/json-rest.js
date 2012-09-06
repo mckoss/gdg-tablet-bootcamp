@@ -55,4 +55,4 @@ namespace.module('startpad.json-rest', function(exports, require) {
             }
         });
     }
-})
+});

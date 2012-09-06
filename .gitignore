@@ -1,7 +1,6 @@
 *#
 *~
 *.pyc
-env/*
 .DS_Store
 env/*
-activate
+app/js/*combined*.js

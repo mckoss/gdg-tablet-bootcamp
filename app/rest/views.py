@@ -13,6 +13,9 @@ from google.appengine.api import images
 import settings
 
 import models
+import includes
+
+script_includes = includes.script_includes()
 
 JSON_MIMETYPE = 'application/json'
 JSON_MIMETYPE_CS = JSON_MIMETYPE + '; charset=utf-8'
@@ -94,12 +97,12 @@ class ListHandler(UserHandler, JSONHandler):
 
         query = model.all()
 
-        should_cache = True
+        should_cache = False
 
         for property_name in self.request.arguments():
             value = self.request.get(property_name)
-            if property_name == 'no-cache':
-                should_cache = False
+            if property_name == 'cache':
+                should_cache = True
                 continue
             if '*' == value[-1]:
                 filter_query_by_prefix(query, model, property_name, value[:-1])
@@ -230,13 +233,15 @@ class PageHandler(ParamHandler, UserHandler):
 
     def prepare(self):
         username = self.user and self.user.nickname()
+        self.render_data.update(script_includes)
         self.render_data.update({
             'sign_in': users.create_login_url('/'),
             'sign_out': users.create_logout_url('/'),
             'username': username,
             'site_name': settings.SITE_NAME,
             'admin_url': settings.ADMIN_URL,
-            'debug': settings.DEBUG
+            'debug': settings.DEBUG,
+            'manifest': settings.MANIFEST,
         })
 
     def get(self, *args):
