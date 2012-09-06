@@ -18,10 +18,10 @@ def init():
 # some HTML to use instead of an input / textarea.
 
 class Todo(RESTModel, Timestamped):
-    user_id = db.StringProperty()
     text = db.StringProperty()
     done = db.BooleanProperty()
     order = db.IntegerProperty()
+
 
 class Image(RESTModel, Timestamped):
     title = db.StringProperty()
@@ -37,6 +37,7 @@ class Image(RESTModel, Timestamped):
                   'imageGUI.loadImages(item.cats, "cats");',
                   'imageGUI.loadImages(item.puppies, "puppies");',
                   'imageGUI.loadImages(item.desktopBackgrounds, "desktopBackgrounds");',)
+
 
 class Showdown(RESTModel, Timestamped):
     title = db.StringProperty()

@@ -35,7 +35,7 @@ the app to make it do what you want it to.
 
 ### Lesson 2 - ToDo Sample Application - The Server Side
 
-1. Learn how a web app is built on App Engine (pages rendering and data storage).
+1. Learn how a web app is built on App Engine (page rendering and data storage).
 2. Define a "data model" for saving and retrieving information for your users.
 3. Using the Admin interface.
 4. The data interface - JSON/REST.

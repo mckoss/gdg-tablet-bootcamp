@@ -18,4 +18,4 @@ paths = [
 
 paths.extend(rest.get_paths())
 
-app = webapp.WSGIApplication(paths, debug=True)
+app = webapp.WSGIApplication(paths, debug=settings.DEBUG)

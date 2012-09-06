@@ -6,6 +6,7 @@
   - image list
 - Allow deletion of image.
 - Link to AppEngine admin from our admin.
+- Factor rest from admin.
 
 
 # Framework
@@ -17,6 +18,12 @@
   - Sidebar?
 - Build app.yaml from user customization file (e.g. dev name - not checked in)
 - Enable depth-limited traversal of JSON data.
+- Simplify PageHandler - remove package - all templates at top level (rename TemplateHanlder).
+- Simplify app.yaml - all js/css at top level.
+- remove add_models and implicitly add any subclass of RESTModel
+- Why are read_only fields ignored now in admin?  (Bobby changed it?)
+
+
 
 
 # Sample apps
