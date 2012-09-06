@@ -95,6 +95,67 @@ RESTModel (unique to this lesson framework).
 
 ## REST Models
 
+We use a variant of the App Engine Model to define a special version of our Models:
 
+    class Todo(RESTModel, Timestamped):
+        text = db.StringProperty()
+        done = db.BooleanProperty()
+        order = db.IntegerProperty()
+
+A RESTModel adds the capability to:
+
+    - Support a [REST] interface to the backend database.
+    - Describe its own schema to the JavaScript client.
+
+For example, we retrieve all the todos in the database via an (ajax) request to
+http://localhost:8080/data/todo:
+
+    [
+      {
+        "created": 1346775918000,
+        "done": false,
+        "id": 1,
+        "modified": 1346775918000,
+        "name": null,
+        "order": 1,
+        "owner_email": "anonymous",
+        "text": "hello"
+      },
+      {
+        "created": 1346775919000,
+        "done": false,
+        "id": 2,
+        "modified": 1346775919000,
+        "name": null,
+        "order": 2,
+        "owner_email": "anonymous",
+        "text": "world"
+      }
+    ]
+
+While a single todo can be fetched by a request to http://localhost:8080/data/todo/1:
+
+    {
+      "created": 1346775918000,
+      "done": false,
+      "id": 1,
+      "modified": 1346775918000,
+      "name": null,
+      "order": 1,
+      "owner_email": "anonymous",
+      "text": "hello"
+    }
+
+These JSON-formatted responses can be read by JavaScript for processing in the client.
+
+Similarly, we can use the HTTP verbs PUT, POST, and DELETE (from JavaScript) to update,
+create, and delete items in the to-do list.
+
+The REST interface gives us the full set of "CRUD" commands:
+
+    Create - POST to /data/todo
+    Request - GET to /data/todo/id
+    Update - PUT to /data/todo/id
+    Delete - DELETE to /data/todo/id
 
   [Web App Framework]
