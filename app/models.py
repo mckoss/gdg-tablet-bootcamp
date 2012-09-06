@@ -23,6 +23,7 @@ class Todo(RESTModel, Timestamped):
     done = db.BooleanProperty()
     order = db.IntegerProperty()
 
+
 class Image(RESTModel, Timestamped):
     title = db.StringProperty()
     pictures = db.TextProperty()
@@ -37,6 +38,7 @@ class Image(RESTModel, Timestamped):
                   'imageGUI.loadImages(item.cats, "cats");',
                   'imageGUI.loadImages(item.puppies, "puppies");',
                   'imageGUI.loadImages(item.desktopBackgrounds, "desktopBackgrounds");',)
+
 
 class Showdown(RESTModel, Timestamped):
     title = db.StringProperty()

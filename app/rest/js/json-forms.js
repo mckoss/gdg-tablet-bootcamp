@@ -111,7 +111,6 @@ namespace.module('startpad.json-forms', function(exports, require) {
         $images.one('load', onImageLoad).each(function () {
             if (this.complete) $(this).load();
         });
-        // $images.on('error', onImageError); // removing image is not desired behavior
 
         var $modals = $('.modal');
         for (var i = 0; i < $modals.length; i++) {
@@ -127,13 +126,6 @@ namespace.module('startpad.json-forms', function(exports, require) {
         // 10 is padding + border set in thumbnail
         $(this).css('margin-left', -(this.width + 10) / 2); 
         $(this).css('margin-top', -(this.height + 10) / 2);
-    }
-
-    // on image load error, remove the whole thumbnail and modal
-    function onImageError(event) {
-        var id = $(this).siblings()[0].innerHTML;     // get the id of corresponding modal
-        $('#' + id).remove();                         // remove the modal
-        $(this.offsetParent.offsetParent).remove();   // remove the appropriate thumbnail container
     }
 
     function ensureModalLoaded(id, event) {
@@ -286,8 +278,6 @@ namespace.module('startpad.json-forms', function(exports, require) {
 
         imageGUI.getImageFields(result);
 
-        //result['images'] = imageGUI.stringifyImages();
-        //result['mapLocations'] = imageGUI.stringifyMaps();
         return result;
     }
 
@@ -299,7 +289,6 @@ namespace.module('startpad.json-forms', function(exports, require) {
                }
     }
 
-    // FROM SC QR code stuff, makes sense to have it in here so here it is:
     var qrTemplate = _.template(
         '<img src="http://chart.googleapis.com/chart?cht=qr&chs=<%= size %>x<%= size %>&' +
             'chl=<%= encURL %>">' +
