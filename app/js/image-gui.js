@@ -12,9 +12,10 @@ namespace.module('startpad.image-gui', function(exports, require) {
     });
 
 
-    // array of unique identifier counters
-    var imageUIDs = {};
+    var imageUIDs = {};    // array of unique identifier counters
 
+    // Each text property intended to be a group of images will have its own array
+    //   in images accessable via images.propertyName
     var images = {};
 
     var IMAGE_MARGIN = 5;
@@ -58,6 +59,7 @@ namespace.module('startpad.image-gui', function(exports, require) {
         '</div>');
 
 
+    // takes \n separated list of image names and the model's attribute name for that list
     function loadImages(imageStr, modelId) {
         var imageGroup = [];
         var i;
@@ -76,7 +78,7 @@ namespace.module('startpad.image-gui', function(exports, require) {
     }
 
     function initImageGUI() {
-        var i, j, imageGroup;
+        var i, imageGroup;
         for (modelId in images) {
             if (!images.hasOwnProperty(modelId)) {
                 continue;
@@ -89,7 +91,7 @@ namespace.module('startpad.image-gui', function(exports, require) {
         }
     }
 
-    function bindImageEvents(image, imageGroup) { // imageGroup is not used in this function, should it be?
+    function bindImageEvents(image, imageGroup) {
         var id, $container;
 
         id = image.id;
@@ -101,7 +103,7 @@ namespace.module('startpad.image-gui', function(exports, require) {
         $container.find('.thumbnail-image').one('load', onImageLoad).each(function () {
             if (this.complete) $(this).load();
         });
-        $container.find('.delete').on('click', onDeleteClick.curry(image, imageGroup));
+        $container.find('.delete').on('click', onDelete.curry(image, imageGroup));
 
         $container.find('.back').on('click', shiftImage.curry(image, 'back'));
         $container.find('.fwd').on('click', shiftImage.curry(image, 'fwd'));
@@ -112,12 +114,15 @@ namespace.module('startpad.image-gui', function(exports, require) {
         if (!name) {
             return;
         }
-        var image = { id: modelId + '-' + imageUIDs[modelId]++, name: name, modelId: modelId };
+
+        var image = { name: name, id: modelId + '-' + imageUIDs[modelId]++, modelId: modelId };
         images[modelId].push(image);
         $(imageTemplate({ image: image })).insertBefore($(this).parent());
         bindImageEvents(image, images[modelId]);
     }
 
+    // center the image by adding left: 50%, top: 50% with abs position
+    //   then give negative margins equal to half image width/height
     function onImageLoad(event) {
         $(this).addClass('centered');
         var ml = -(this.width + 10) / 2;
@@ -126,30 +131,16 @@ namespace.module('startpad.image-gui', function(exports, require) {
         $(this).css('margin-top', mt);
     }
 
-    function onDeleteClick(image, imageGroup, event) {
+    function onDelete(image, imageGroup, event) {
         preventDefaultStopProp(event);
 
         var index = objectIndexOf(imageGroup, 'id', image.id);
         imageGroup.splice(index, 1);
-/*        var index;
-        var array;
-        if (which == 'picture') {
-            array = pictures;
-        } else if (which == 'map') {
-            array = maps;
-        }
-        index = objectIndexOf(array, 'id', id);
-        if (index == -1) {
-            console.log('Error: trying to delete non existant ' + which);
-        }
-        array.splice(index, 1);
-*/
+
         $('#' + image.id + '-container').remove();
         $('#' + image.id + '-modal').remove();
     }
 
-
-    //function shiftImage(array, id, direction, event) {
     function shiftImage(image, direction, event) {
         preventDefaultStopProp(event);
 
@@ -164,17 +155,6 @@ namespace.module('startpad.image-gui', function(exports, require) {
         }
         imageGroup[index].$container.insertAfter(imageGroup[index + 1].$container);
         swap(imageGroup, index, index + 1);
-
-        /*
-        var index = objectIndexOf(array, 'id', id);
-        if (direction == 'back') {
-            index--;
-        }
-        if (index < 0 || index >= array.length - 1) {
-            return;
-        }
-        array[index].$container.insertAfter(array[index + 1].$container);
-        swap(array, index, index + 1);*/
     }
 
     function getImageFields(result) {
@@ -195,14 +175,13 @@ namespace.module('startpad.image-gui', function(exports, require) {
         return result.slice(0, -1); // slice off the trailing \n
     }
 
-    // indexOf() for an array of objects. returns i where array[i].key == value
+    // indexOf() for an array of objects. returns i where array[i].key === value
     function objectIndexOf(array, key, value) {
         for (var i = 0; i < array.length; i++) {
             if (array[i][key] === value) {
                 return i;
             }
         }
-        console.log('objectindexof not found');
         return -1;
     }
 
