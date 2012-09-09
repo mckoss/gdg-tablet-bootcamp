@@ -14,6 +14,7 @@ models.init()
 
 paths = [
     ('/', PageHandler.params('index.html')),
+    ('/todo', PageHandler.params('todo.html')),
     ]
 
 paths.extend(rest.get_paths())

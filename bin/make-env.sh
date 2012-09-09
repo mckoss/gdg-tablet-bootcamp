@@ -7,7 +7,7 @@ AE_DIR="$ENV_DIR/appengine"
 AE_BIN="$AE_DIR/google_appengine"
 
 AE_FILES=http://googleappengine.googlecode.com/files
-AE_VERSION="1.7.0"
+AE_VERSION="1.7.1"
 PYTHON_CMD=python2.7
 SETUP_TOOLS=setuptools-0.6c11-py2.7.egg
 
