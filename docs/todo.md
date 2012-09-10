@@ -7,6 +7,10 @@
 - Allow deletion of image.
 - Link to AppEngine admin from our admin.
 - Factor rest from admin.
+- Form styles side-by-side (bootstrap class?)
+- Checkbox style for boolean.
+- Factor fields into own class.
+- Support date parsing, boolean, select.
 
 
 # Framework
@@ -23,12 +27,22 @@
 - remove add_models and implicitly add any subclass of RESTModel
 - Why are read_only fields ignored now in admin?  (Bobby changed it?)
 
+# Documentation
 
-
+- Models
+  - Admin field types.
+  - Reference fields
+- JSON api
+  - Schema
+  - Create
+  - Read
+  - Update
+  - Delete
 
 # Sample apps
 
 - Show image list
+- Include all field types (bool, number, text, long-text,).
 - QR Code
 - Showdown/markdown
 - Mobile screen size and orientation demo
