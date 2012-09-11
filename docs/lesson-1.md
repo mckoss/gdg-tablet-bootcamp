@@ -46,7 +46,7 @@ the app to make it do what you want it to.
 2. Using [Backbone.js] to coordinate client side views and data.
 3. User authentication and sign-in (using Google accounts).
 
-### Lesson 4 - Wiki Reader - Advanced HTML web app
+### Lesson 4 - TBD - Advanced HTML web app
 
 1. Use client-side application navigation through use of the HTML "anchor" (#) url.
 2. Design an HTML app for different screen dimensions using [Twitter Bootstrap].
@@ -95,13 +95,32 @@ not the windows command prompt):
     $ cd gtug-tablet-bootcamp
     $ git remote add upstream git://github.com/mckoss/gdg-tablet-bootcamp.git
 
-Mac:
-TODO: insert mac installation instructions
 
-Windows:
+## Mac
 
-1. Python 2.7.3 
-   - Go to http://www.python.org/download/  
+1. A version of Python 2.7 is installed by default on Mac OS/X.
+2. Go to [App Engine SDK for Python] and download GoogleAppEngineLauncher-1.7.1.dmg.
+3. Open the dmg file and drag the GoogleAppEngineLauncher icon to your Application folder.
+4. Run the program from Applications folder.  Click "OK" when asked to create Symlinks.
+4. sudo easy_install pip
+   - Go to http://pypi.python.org/pypi/setuptools
+   - Under the heading "64-bit versions of Python" right click on the link
+        labeled "ez_setup.py" and save it
+   - Run "ez_setup.py"
+5. Install [PIL] for Image processing support:
+   - You can get full support for image manipulation on the server.  This is easiest
+     if you have a package manager on your Mac like [Homebrew] or [Mac Ports].
+     This [Stack Overflow)[http://stackoverflow.com/questions/8404956/installing-pil-with-jpeg-support-on-mac-os-x]
+     article is helpful.  I pref [Mac Ports]:
+   - $ sudo port install py27-pil # This insalls all dependencies and PIL into python2.7 including in ports!
+   - $ sudo pip install PIL # This will install PIL into Apple's default Python (yes you have multiple versions of Python on
+     your machine.
+
+
+## Windows
+
+1. Python 2.7.3
+   - Go to [Python.org]
    - Click on "Python 2.7.3 Windows Installer (Windows binary -- does not include source)"
    - Run the installer, let it install to the default location, C:\python27
         If you must change the location (not recommended), take note of where it goes
@@ -113,20 +132,15 @@ Windows:
    - Click on path and press Edit.
    - Append ";C:\python27" (no quotes) to the end of the Path variable (or your python path)
 3. PIL
-   - Go to http://www.pythonware.com/products/pil/
+   - Go to [PIL]
    - Click on the link for "Python Imaging Library 1.1.7 for Python 2.7 (Windows only)"
    - Run the installer
-4. pip
-   - Go to http://pypi.python.org/pypi/setuptools
-   - Under the heading "64-bit versions of Python" right click on the link
-        labeled "ez_setup.py" and save it
-   - Run "ez_setup.py"
 5. Google App Engine
-   - Go to https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python
+   - Go to [App Engine SDK for Python].
    - Download "GoogleAppEngine-1.7.1.msi" for Windows
    - Run the installer
 
-Linux:
+## Linux
 
 The rest of your development machine configuration can be setup by running this command:
 
@@ -139,13 +153,13 @@ This script will install (if you don't them already):
 2. [pip] - Python package installer (the *new* easy_install).
 4. [Google App Engine]: Google's web application service (for Python).
 
-*Note: If you want to merge any updates that have been made our master repository since you made your
+*Note: If you want to merge any updates that have been made to our master repository since you made your
 fork, use the following commands:
 
     $ git fetch upstream
     $ git merge upstream/master
 
-# Running the Todos application
+# Running the Application
 
 You should now be able to run the sample application on your machine.
 
@@ -158,6 +172,7 @@ You should now be able to run the sample application on your machine.
    - Click Add
 3. Select your app in the list and click the Run button.
 4. Open a web browser at address: http://localhost:8080
+5. Test if image uploading is working by visiting http://localhost:8080/admin/media
 
 You should see the Todos application running in your browser!
 
@@ -208,13 +223,18 @@ You can view an online version of the app at http://gdg-tablet.appspot.com/
 
   [Git Tutorial]: http://gitimmersion.com/index.html
   [Git Simple Guide]: http://rogerdudler.github.com/git-guide/
+  [Python.org] http://www.python.org/download/
   [Python 2.7]: http://www.python.org/getit/releases/2.7.3/
   [pip]: http://pypi.python.org/pypi/pip
   [PIL]: http://www.pythonware.com/products/pil/
   [Google App Engine]: http://code.google.com/appengine/docs/python/overview.html
+  [App Engine SDK]: https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python
 
   [App Engine Admin Console]: https://appengine.google.com/
   [application specific password]: https://accounts.google.com/b/2/IssuedAuthSubTokens
 
-  [Android Design]
-  [Google TV]
+  [Android Design]: http://developer.android.com/design/index.html
+  [Google TV]: https://developers.google.com/tv/
+
+  [Homebrew]: http://mxcl.github.com/homebrew/
+  [Mac Ports]: http://www.macports.org/
