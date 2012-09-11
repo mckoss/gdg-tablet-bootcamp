@@ -164,7 +164,7 @@ Note: If you get an error "AttributeError: can't set attribute" you are probably
 properly.  If you use two-factor authentication for your Google account, you will have to create
 an [application specific password] and use that to deploy to AppEngine.
 
-You can view an online version of the app at http://gdg-mckoss.appspot.com/
+You can view an online version of the app at http://gdg-tablet.appspot.com/
 
   [GitHub]: https://github.com/
   [App Engine]: http://code.google.com/appengine/
