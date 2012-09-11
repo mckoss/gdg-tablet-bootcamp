@@ -76,9 +76,9 @@ I recommend [Git Simple Guide] and [Git Tutorial].
 - Install [Git for Mac](http://help.github.com/mac-set-up-git/)
 - Install [Git for Linux](http://help.github.com/linux-set-up-git/)
 
-We've tried to make installation of your development environment simpler by providing a shell script
-that you can run to install the various pre-requisites for your development environment.  In order to
-use this script you need to be running Terminal (on Mac or Linux) or *Git Bash* (on Windows).
+For Linux users, installing the development environment involves simply running a shell script to
+gather and install all of the dependencies.  Windows and Mac users must install the pre-requisites
+manually.
 
 First, create your *own copy* of this repository by forking it on GitHub.
 
@@ -94,6 +94,39 @@ not the windows command prompt):
     $ git clone git@github.com:<your-github-username>/gdg-tablet-bootcamp.git
     $ cd gtug-tablet-bootcamp
     $ git remote add upstream git://github.com/mckoss/gdg-tablet-bootcamp.git
+
+Mac:
+TODO: insert mac installation instructions
+
+Windows:
+
+1. Python 2.7.3 
+   - Go to http://www.python.org/download/  
+   - Click on "Python 2.7.3 Windows Installer (Windows binary -- does not include source)"
+   - Run the installer, let it install to the default location, C:\python27
+        If you must change the location (not recommended), take note of where it goes
+2. Add Python to path
+   - Hold windows key and press pause (Or go Control Panel->System and Security->System)
+   - Click on the link labeled "Advanced System Settings" on the sidebar
+   - Click on the button "Environment Variables" at the bottom
+   - Under "System Variables" find the variabled called "Path"
+   - Click on path and press Edit.
+   - Append ";C:\python27" (no quotes) to the end of the Path variable (or your python path)
+3. PIL
+   - Go to http://www.pythonware.com/products/pil/
+   - Click on the link for "Python Imaging Library 1.1.7 for Python 2.7 (Windows only)"
+   - Run the installer
+4. pip
+   - Go to http://pypi.python.org/pypi/setuptools
+   - Under the heading "64-bit versions of Python" right click on the link
+        labeled "ez_setup.py" and save it
+   - Run "ez_setup.py"
+5. Google App Engine
+   - Go to https://developers.google.com/appengine/downloads#Google_App_Engine_SDK_for_Python
+   - Download "GoogleAppEngine-1.7.1.msi" for Windows
+   - Run the installer
+
+Linux:
 
 The rest of your development machine configuration can be setup by running this command:
 
