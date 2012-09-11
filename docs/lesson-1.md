@@ -99,7 +99,7 @@ not the windows command prompt):
 ## Mac
 
 1. A version of Python 2.7 is installed by default on Mac OS/X.
-2. Go to [App Engine SDK for Python] and download GoogleAppEngineLauncher-1.7.1.dmg.
+2. Go to [App Engine SDK] for Python and download GoogleAppEngineLauncher-1.7.1.dmg.
 3. Open the dmg file and drag the GoogleAppEngineLauncher icon to your Application folder.
 4. Run the program from Applications folder.  Click "OK" when asked to create Symlinks.
 4. sudo easy_install pip
