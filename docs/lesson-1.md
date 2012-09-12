@@ -138,16 +138,20 @@ not the windows command prompt):
 
 ## Linux
 
-The rest of your development machine configuration can be setup by running this command:
+Run the following command
 
-    $ bin/setup-machine.sh
+    $ bin/make-env.sh
 
 This script will install (if you don't them already):
 
 1. [Python 2.7]
-2. [PIL] - Python image library.
 2. [pip] - Python package installer (the *new* easy_install).
-4. [Google App Engine]: Google's web application service (for Python).
+3. [Google App Engine]: Google's web application service (for Python).
+
+Next run
+
+    $ sudo apt-get install python-dev
+    $ pip install PIL
 
 *Note: If you want to merge any updates that have been made to our master repository since you made your
 fork, use the following commands:
