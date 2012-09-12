@@ -103,18 +103,14 @@ not the windows command prompt):
 3. Open the dmg file and drag the GoogleAppEngineLauncher icon to your Application folder.
 4. Run the program from Applications folder.  Click "OK" when asked to create Symlinks.
 4. sudo easy_install pip
-   - Go to http://pypi.python.org/pypi/setuptools
-   - Under the heading "64-bit versions of Python" right click on the link
-        labeled "ez_setup.py" and save it
-   - Run "ez_setup.py"
 5. Install [PIL] for Image processing support:
    - You can get full support for image manipulation on the server.  This is easiest
      if you have a package manager on your Mac like [Homebrew] or [Mac Ports].
      This [Stack Overflow)[http://stackoverflow.com/questions/8404956/installing-pil-with-jpeg-support-on-mac-os-x]
-     article is helpful.  I pref [Mac Ports]:
-   - $ sudo port install py27-pil # This insalls all dependencies and PIL into python2.7 including in ports!
+     article is helpful.  I prefer [Mac Ports]:
+   - $ sudo port install py27-pil # This installs all dependencies and PIL into python2.7 including in ports!
    - $ sudo pip install PIL # This will install PIL into Apple's default Python (yes you have multiple versions of Python on
-     your machine.
+     your machine).
 
 
 ## Windows
