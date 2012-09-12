@@ -4,11 +4,44 @@
 
 <title>GDG Sample Apps</title>
 
+<link rel="stylesheet" type="text/css" href="/css/desktop.css" />
+<link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="/css/bootstrap-responsive.css" />
+
 {% endblock %}
 
 {% block body %}
 
 <h1>GDG Sample Applictions</h1>
+
+<div class="navbar navbar-fixed-top">
+  <div class="navbar-inner">
+    <div class="container-fluid">
+      <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </a>
+      <a class="brand" href="/admin">{{ site_name }} Admin</a>
+      <div class="nav-collapse">
+        <ul class="nav">
+          <li><a href="/">Main Site</a></li>
+          <li><a href="/admin/forms">Database</a></li>
+          <li><a href="/admin/media">Media</a></li>
+          <li><a href="{{ admin_url }}">Console</a></li>
+          <li><a href="/admin/help">Help</a></li>
+        </ul>
+        {% if username %}
+        <p class="navbar-text pull-right">Welcome, {{ username }}
+          <a href="{{ sign_out }}">Sign out</a>
+        </p>
+        {% else %}
+        <p class="navbar-text pull-right"><a href="{{ sign_in }}">Sign in</a></p>
+        {% endif %}
+      </div><!--/.nav-collapse -->
+    </div>
+  </div>
+</div>
 
 <ul>
 <li><a href="/todo">ToDo - Boostrap sample</a></li>

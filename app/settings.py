@@ -25,4 +25,7 @@ SCRIPTS = {
     'todo': COMMON_SCRIPTS + (
         'json-rest', 'backbone', 'todos',
         ),
+    'canvas': COMMON_SCRIPTS + (
+        'canvas',
+        ),
 }
