@@ -45,11 +45,12 @@
 - Include all field types (bool, number, text, long-text,).
 - QR Code
 - Showdown/markdown
+- Touch/canvas demo
 - Mobile screen size and orientation demo
+- Bootstrap/mobile sample
 - Todo:
   - Enable real-time updates.
   - Show owner of item?
-
 
 # Documentation
 

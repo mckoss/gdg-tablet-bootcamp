@@ -56,7 +56,7 @@ Just a few lines in main.py tell App Engine how to run our application and dispa
 
     app = webapp.WSGIApplication(paths, debug=settings.DEBUG)
 
-This application has a single URL pattern, '/' (i.e., the root of the domain, http://gdg-tablet/),
+This application has a single URL pattern, '/' (i.e., the root of the domain, http://gdg-tablet.appspot.com/),
 which is rendered by running a Request Handler called PageHandler.  A page handler generatates HTML
 by reading a template file, and applying variables from your program, much like a form letter is
 generated from a template and a database.
