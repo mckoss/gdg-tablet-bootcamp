@@ -92,7 +92,7 @@ the following commands (on Windows, you should run these command from the *Git B
 not the windows command prompt):
 
     $ git clone git@github.com:<your-github-username>/gdg-tablet-bootcamp.git
-    $ cd gtug-tablet-bootcamp
+    $ cd gdg-tablet-bootcamp
     $ git remote add upstream git://github.com/mckoss/gdg-tablet-bootcamp.git
 
 
