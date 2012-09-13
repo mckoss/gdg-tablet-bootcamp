@@ -148,7 +148,11 @@ This script will install (if you don't them already):
 2. [pip] - Python package installer (the *new* easy_install).
 3. [Google App Engine]: Google's web application service (for Python).
 
-Next run
+Next, enter the virtual env with
+
+    $ source bin/use
+
+And install python-dev and PIL within the virtual env with
 
     $ sudo apt-get install python-dev
     $ pip install PIL
