@@ -132,7 +132,7 @@ not the windows command prompt):
    - Click on the link for "Python Imaging Library 1.1.7 for Python 2.7 (Windows only)"
    - Run the installer
 5. Google App Engine
-   - Go to [App Engine SDK for Python].
+   - Go to [App Engine SDK] for Python.
    - Download "GoogleAppEngine-1.7.1.msi" for Windows
    - Run the installer
 
