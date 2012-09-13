@@ -15,6 +15,8 @@ namespace.module('gdg.canvas', function (exports, requires) {
     var upEventStr;
     var isTouchDown = false;  // boolean, is there a touchdown
 
+    var touchQueue = [];
+
     function init() {
 
         // check if touch device (from Modernizr)
@@ -75,7 +77,24 @@ namespace.module('gdg.canvas', function (exports, requires) {
         ctx.textBaseline = 'top';
         ctx.fillText(getFps(time, lastTime, 4), 5, 5);
 
-        // 
+        while (touchQueue.length > 0) {
+            var touch = touchQueue.shift();
+            if (touch.type === 'down') {
+                ctx.beginPath();
+                ctx.moveTo(touch.x, touch.y);
+                ctx.lineWidth = 2;
+            } else if (touch.type === 'move') {
+                ctx.lineTo(touch.x, touch.y);
+                ctx.stroke();
+            } else if (touch.type === 'up') {
+                ctx.lineTo(touch.x, touch.y);
+                ctx.stroke();
+                ctx.closePath();
+                reRender = true;
+                isTouchDown = undefined;
+            }
+        }
+
         lastTime = time;
         requestAnimationFrame(render);
     }
@@ -85,9 +104,11 @@ namespace.module('gdg.canvas', function (exports, requires) {
 
         event = exposeTouchEvent(event);
 
-        ctx.beginPath();
-        ctx.moveTo(event.pageX, event.pageY);
-        ctx.lineWidth = 2;
+        touchQueue.push({
+            type: 'down',
+            x: event.pageX,
+            y: event.pageY
+        });
     }
 
     function onMove(event) {
@@ -96,8 +117,11 @@ namespace.module('gdg.canvas', function (exports, requires) {
         }
         event = exposeTouchEvent(event);
 
-        ctx.lineTo(event.pageX, event.pageY);
-        ctx.stroke();
+        touchQueue.push({
+            type: 'move',
+            x: event.pageX,
+            y: event.pageY
+        });
     }
 
     function onUp(event) {
@@ -106,11 +130,11 @@ namespace.module('gdg.canvas', function (exports, requires) {
         }
         event = exposeTouchEvent(event);
 
-        ctx.lineTo(event.pageX, event.pageY);
-        ctx.stroke();
-        ctx.closePath();
-        reRender = true;
-        isTouchDown = undefined;
+        touchQueue.push({
+            type: 'up',
+            x: event.pageX,
+            y: event.pageY
+        });
     }
 
     // Calculate approximate frames per second based on time between raf calls
