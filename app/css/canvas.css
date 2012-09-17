@@ -4,3 +4,46 @@ body {
   overflow: hidden;
   margin: 0;
 }
+canvas#main {
+  display: block;
+  cursor: pointer;
+  margin: 0 auto;
+}
+#control {
+  display: block;
+  height: 30px;
+  padding: 0 10px;
+  font-family: Helvetica sans-serif;
+  font-size: 16px;
+  line-height: 30px;
+}
+#control label {
+  height: 30px;
+  line-height: 30px;
+  margin: 0;
+  text-align: center;
+}
+#control div {
+  display: inline-block;
+}
+#control #fps {
+  width: 30px;
+}
+#control #color-demo {
+  width: 20px;
+  border-radius: 11px;
+  background-color: black
+}
+#control input {
+  height: 24px;
+  line-height: 20px;
+  font-size: inherit;
+}
+#control #color {
+  width: 60px;
+  text-align: center;
+}
+#control #line-width {
+  width: 40px;
+  text-align: center;
+}

@@ -10,6 +10,20 @@
 
 {% block body %}
 
-<canvas><p>Canvas not supported</p></canvas>
+<div id="control">
+  <label>FPS:</label>
+  <div id="fps"></div>
+
+  <label>Color:</label>
+  <input id="color" type="text" maxlength="6" value="000000" />
+  <div id="color-demo"></div>
+
+  <label>Line Width:</label>
+  <input id="line-width" type="number" value="2" />
+
+  <button id="save">Save</button>
+  <button id="load">Load</button>
+</div>
+<canvas id="main"><p>Canvas not supported</p></canvas>
 
 {% endblock %}

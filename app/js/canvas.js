@@ -1,12 +1,15 @@
-namespace.module('gdg.canvas', function (exports, requires) {
-    $(document).ready(init);
+namespace.module('gdg.canvas', function (exports, require) {
+    require('org.startpad.funcs').patch();
+
+    $(document).ready(function () {
+        setTimeout(init, 0);  // let the DOM catch up before calling init
+    });
 
     var isTouchDevice;   // boolean
     var $canvas;         // jQuery wrapped html canvas element
     var ctx;
     var windowSize;      // 2 element array recording the window size
     var orientation;     // string, 'portrait' or 'landscape
-    var reRender = false;
     var fpsAverage = 60;
     var lastTime = new Date().getTime();
 
@@ -17,10 +20,23 @@ namespace.module('gdg.canvas', function (exports, requires) {
 
     var touchQueue = [];
 
+    var hiddenCanvasUID = 0;
+
+    var hiddenCanvas = _.template(
+        '<canvas id=hidden-canvas-<%= id %> width=<%= width %> height=<%= height %>' +
+            ' style="display: none;"></canvas>'
+    );
+
+    var HEADER_HEIGHT;
+    var DEVICE_PIXEL_RATIO = 1.325;
+    var PORTRAIT = [603, 796];
+    var LANDSCAPE = [965, 443];
+    var canvasSize = [];
+    var canvasScale;
+
     function init() {
 
-        // check if touch device (from Modernizr)
-        isTouchDevice = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch;
+        isTouchDevice = Modernizr.touch;
 
         if (isTouchDevice) {
             $(document).on('touchstart', function (event) {
@@ -32,65 +48,120 @@ namespace.module('gdg.canvas', function (exports, requires) {
         upEventStr   = isTouchDevice ? 'touchend'   : 'mouseup';
 
         $canvas = $('canvas');
+        orientation = getOrientation();
+
+        if (orientation === 'portrait') {
+            canvasSize[0] = PORTRAIT[0] * DEVICE_PIXEL_RATIO;
+            canvasSize[1] = PORTRAIT[1] * DEVICE_PIXEL_RATIO;
+        } else if (orientation === 'landscape') {
+            canvasSize[0] = LANDSCAPE[0] * DEVICE_PIXEL_RATIO;
+            canvasSize[1] = LANDSCAPE[1] * DEVICE_PIXEL_RATIO;
+        } else {
+            console.log('ERROR: you have spelled something wrong');
+            return;
+        }
+        $canvas[0].width = canvasSize[0];
+        $canvas[0].height = canvasSize[1];
+
+        HEADER_HEIGHT = parseInt($('#control').css('height'), 10);
+
         ctx = $canvas[0].getContext('2d');
+
+        ctx.fillStyle = '#ddd';
+        ctx.fillRect(0, 0, canvasSize[0], canvasSize[1]);
+        ctx.lineWidth = $('#line-width').val();
+        ctx.strokeStyle = '#' + $('#color').val();
 
         $canvas.on(downEventStr, onDown);
         $canvas.on(moveEventStr, onMove);
         $canvas.on(upEventStr,   onUp);
 
+        $('#color').on('change keyup', changeColor);
+        $('#line-width').on('change keyup', changeLineWidth);
+
         $(window).on('resize', onResize);
         onResize();
 
+        $('input').on(downEventStr, function () { this.focus(); });
+
+        $('#save').on(downEventStr, saveCanvas.curry($canvas[0]));
+
         requestAnimationFrame(render);
+
+        /*setTimeout(function () {
+            alert('[' + window.innerWidth + ', ' + window.innerHeight + '], pixelRatio:' +
+                  window.devicePixelRatio + ', ' + $canvas.css('width') + ', ' + $canvas.css('height') +
+                 ', ' + HEADER_HEIGHT + ', ' + $canvas[0].offsetTop);
+        }, 3000);*/
+    }
+
+    function saveCanvas(canvas) {
+        $('body').append(hiddenCanvas({
+            id: hiddenCanvasUID,
+            width: canvas.width,
+            height: canvas.height
+        }));
+        var newCanvas = $('#hidden-canvas-' + hiddenCanvasUID)[0];
+        newCanvas.getContext('2d').drawImage(canvas, 0, 0);
+
+        hiddenCanvasUID++;
+    }
+
+    function changeColor() {
+        var color = '#' + $(this).val();
+        ctx.strokeStyle = color;
+        $('#color-demo').css('background-color', color);
+    }
+
+    function changeLineWidth() {
+        ctx.lineWidth = parseFloat($(this).val());
     }
 
     function onResize() {
         windowSize = [window.innerWidth, window.innerHeight];
-        orientation = getOrientation();
-        reRender = true;
+        console.log(windowSize);
+        console.log(HEADER_HEIGHT);
+        var canvasSpace = [windowSize[0], windowSize[1] - HEADER_HEIGHT];
+        console.log(canvasSpace);
+        var marginTop = 0;
+
+        // if the window is more landscape than the canvas is, vertical letterboxes
+        if (canvasSpace[0] / canvasSpace[1] > canvasSize[0] / canvasSize[1]) {
+            canvasScale = canvasSpace[1] / canvasSize[1];
+        } else {
+            canvasScale = canvasSpace[0] / canvasSize[0];
+            marginTop = (canvasSpace[1] - canvasSize[1] * canvasScale) / 2;
+        }
+        $canvas.css({
+            'margin-top': marginTop,
+            'width': canvasSize[0] * canvasScale,
+            'height': canvasSize[1] * canvasScale
+        });
     }
 
     function render(time) {
         var fps;
 
-        // If told to re-render
-        if (reRender) {
-            // set the size of the canvas (which clears it)
-            $('canvas')[0].width = windowSize[0];
-            $('canvas')[0].height = windowSize[1];
-
-            // redraw the background
-            ctx.fillStyle = '#ddd';
-            ctx.fillRect(0, 0, windowSize[0], windowSize[1]);
-
-            // reset flag
-            reRender = false;
-        }
-
-        // draw background color over the fps display area
-        ctx.fillStyle = '#ddd';
-        ctx.fillRect(5, 5, 50, 12);
-
-        // set styles and draw the fps count
-        ctx.fillStyle = 'black';
-        ctx.font = 'bold 12px Helvetica';
-        ctx.textBaseline = 'top';
-        ctx.fillText(getFps(time, lastTime, 4), 5, 5);
+        $('#fps').empty().append(getFps(time, lastTime));
 
         while (touchQueue.length > 0) {
             var touch = touchQueue.shift();
+
+            touch.x /= canvasScale;
+            touch.y /= canvasScale;
             if (touch.type === 'down') {
                 ctx.beginPath();
                 ctx.moveTo(touch.x, touch.y);
-                ctx.lineWidth = 2;
+                ctx.lineTo(touch.x, touch.y + 0.1);
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.stroke();
             } else if (touch.type === 'move') {
                 ctx.lineTo(touch.x, touch.y);
                 ctx.stroke();
             } else if (touch.type === 'up') {
                 ctx.lineTo(touch.x, touch.y);
                 ctx.stroke();
-                ctx.closePath();
-                reRender = true;
                 isTouchDown = undefined;
             }
         }
@@ -101,13 +172,13 @@ namespace.module('gdg.canvas', function (exports, requires) {
 
     function onDown(event) {
         isTouchDown = true;
-
+        event.preventDefault();
         event = exposeTouchEvent(event);
 
         touchQueue.push({
             type: 'down',
-            x: event.pageX,
-            y: event.pageY
+            x: event.pageX - event.target.offsetLeft,
+            y: event.pageY - event.target.offsetTop
         });
     }
 
@@ -115,12 +186,13 @@ namespace.module('gdg.canvas', function (exports, requires) {
         if (isTouchDown !== true) {
             return;
         }
+        event.preventDefault();
         event = exposeTouchEvent(event);
 
         touchQueue.push({
             type: 'move',
-            x: event.pageX,
-            y: event.pageY
+            x: event.pageX - event.target.offsetLeft,
+            y: event.pageY - event.target.offsetTop
         });
     }
 
@@ -132,20 +204,16 @@ namespace.module('gdg.canvas', function (exports, requires) {
 
         touchQueue.push({
             type: 'up',
-            x: event.pageX,
-            y: event.pageY
+            x: event.pageX - event.target.offsetLeft,
+            y: event.pageY - event.target.offsetTop
         });
     }
 
     // Calculate approximate frames per second based on time between raf calls
     // takes a digits integer to indicate level of truncation
-    function getFps(time, lastTime, digits) {
-        fpsAverage = 1000 / (time - lastTime) * 0.05 + fpsAverage * 0.95;
-        if (digits) {
-            return (fpsAverage + '').slice(0, digits + 1);
-        } else {
-            return fpsAverage + '';
-        }
+    function getFps(time, lastTime) {
+        fpsAverage = 1000 / (time - lastTime) * 0.03 + fpsAverage * 0.97;
+        return Math.round(fpsAverage);
     }
 
     function getOrientation() {
@@ -207,3 +275,4 @@ namespace.module('gdg.canvas', function (exports, requires) {
             clearTimeout(id);
         };
 }());
+

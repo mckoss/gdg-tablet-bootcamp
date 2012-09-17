@@ -9,7 +9,8 @@ def init():
     add_models({
             'todo': Todo,
             'image': Image,
-            'showdown': Showdown
+            'showdown': Showdown,
+            'canvas': Canvas
             })
 
 # Each class specifies the data fields for each Model
@@ -47,3 +48,10 @@ class Showdown(RESTModel, Timestamped):
     form_order = ('title', 'body',)
 
     computed = ('item.bodyHTML = markdown(item.body);',)
+
+
+class Canvas(RESTModel, Timestamped):
+    title = db.StringProperty()
+    data = db.TextProperty()
+
+    form_order = ('title')
