@@ -28,7 +28,7 @@ the app to make it do what you want it to.
 
 ## What You'll Do
 
-### Lesson 1 - Seting up your Development Environment and Deploying to App Engine
+### Lesson 1 - Setting up your Development Environment and Deploying to App Engine
 
 1. Setup your development environment to build an [App Engine] application.
 2. Deploy your application to Google's App Engine cloud hosting service.
@@ -51,13 +51,13 @@ the app to make it do what you want it to.
 1. Use client-side application navigation through use of the HTML "anchor" (#) url.
 2. Design an HTML app for different screen dimensions using [Twitter Bootstrap].
 3. Make your app high performance by minifying and combining your client javascript code.
-4. Package your web app so it can be run in offline mode - especially hanlding "sometimes connected"
+4. Package your web app so it can be run in offline mode - especially handling "sometimes connected"
    devices (application cache and offline storage).
 
 
 # What to Bring
 
-You'll have the best expeience at our event if you are able to get a few things accomplished on your own
+You'll have the best experience at our event if you are able to get a few things accomplished on your own
 beforehand.  Don't worry if you don't get to it - we'll have people on site to help you get the preparation
 work done and help you with any snags you may run in to; plan on reserving about an hour to get your
 initial development environment configured.
@@ -92,7 +92,7 @@ the following commands (on Windows, you should run these command from the *Git B
 not the windows command prompt):
 
     $ git clone git@github.com:<your-github-username>/gdg-tablet-bootcamp.git
-    $ cd gtug-tablet-bootcamp
+    $ cd gdg-tablet-bootcamp
     $ git remote add upstream git://github.com/mckoss/gdg-tablet-bootcamp.git
 
 
@@ -124,7 +124,7 @@ not the windows command prompt):
    - Hold windows key and press pause (Or go Control Panel->System and Security->System)
    - Click on the link labeled "Advanced System Settings" on the sidebar
    - Click on the button "Environment Variables" at the bottom
-   - Under "System Variables" find the variabled called "Path"
+   - Under "System Variables" find the variable called "Path"
    - Click on path and press Edit.
    - Append ";C:\python27" (no quotes) to the end of the Path variable (or your python path)
 3. PIL
@@ -132,7 +132,7 @@ not the windows command prompt):
    - Click on the link for "Python Imaging Library 1.1.7 for Python 2.7 (Windows only)"
    - Run the installer
 5. Google App Engine
-   - Go to [App Engine SDK for Python].
+   - Go to [App Engine SDK] for Python.
    - Download "GoogleAppEngine-1.7.1.msi" for Windows
    - Run the installer
 
@@ -201,7 +201,7 @@ You can run your application at `http://<your-app-name>.appspot.com`.
 3. Edit the file gdg-tablet-bootcamp/app/app.yaml:
    - Change `gdg-mckoss` to be `gdg-<your-name>`
 4. Deploy your application.
-   - Open the App Engine Luancher
+   - Open the App Engine Launcher
    - Select your app.
    - Click the Deploy button.
    - Enter your Google Account credentials.

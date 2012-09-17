@@ -10,12 +10,12 @@ In this lesson, we'll:
 # App Engine - Building a Web App
 
 App Engine provides a very simple model for building a web application. You do not have to
-install or configure a web server or a database; it's a "batteries included" appliction
+install or configure a web server or a database; it's a "batteries included" application
 framework that makes it easy for you to define your application and data, while it takes care
 of the details of efficiently hosting your code, files, and data.
 
 We'll be using the simplest App Engine framework, the [[Web App Framework] written for the
-Python programming lanaguage (you can also program App Engine in Java or Go, but those
+Python programming language (you can also program App Engine in Java or Go, but those
 languages are beyond the scope of this lesson).
 
 A general web application has to do a few basic things:
@@ -35,7 +35,7 @@ example:
       static_dir: images
 
 tells App Engine to copy all the files in the images directory of our application and serve
-them for any URL begining with /images (e.g. http://gdg-mckoss.appspot.com/images/logo.png).
+them for any URL beginning with /images (e.g. http://gdg-mckoss.appspot.com/images/logo.png).
 You generally will not have to change the app.yaml file if you put all your static files in
 /images, /css, or /js.
 
@@ -57,7 +57,7 @@ Just a few lines in main.py tell App Engine how to run our application and dispa
     app = webapp.WSGIApplication(paths, debug=settings.DEBUG)
 
 This application has a single URL pattern, '/' (i.e., the root of the domain, http://gdg-tablet.appspot.com/),
-which is rendered by running a Request Handler called PageHandler.  A page handler generatates HTML
+which is rendered by running a Request Handler called PageHandler.  A page handler generates HTML
 by reading a template file, and applying variables from your program, much like a form letter is
 generated from a template and a database.
 
