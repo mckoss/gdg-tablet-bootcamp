@@ -10,20 +10,23 @@
 
 {% block body %}
 
-<div id="control">
+<span id="control">
+  <button id="prev">Prev</button>
+
   <label>FPS:</label>
   <div id="fps"></div>
 
   <label>Color:</label>
   <input id="color" type="text" maxlength="6" value="000000" />
-  <div id="color-demo"></div>
+  <div id="color-demo-container">
+    <div id="color-demo"></div>
+  </div>
 
   <label>Line Width:</label>
   <input id="line-width" type="number" value="2" />
 
-  <button id="save">Save</button>
-  <button id="load">Load</button>
-</div>
+  <button id="next">Next</button>
+</span>
 <canvas id="main"><p>Canvas not supported</p></canvas>
 
 {% endblock %}

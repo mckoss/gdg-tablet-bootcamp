@@ -84,7 +84,8 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         $('input').on(downEventStr, function () { this.focus(); });
 
-        $('#save').on(downEventStr, saveCanvas.curry($canvas[0]));
+        $('#next').on(downEventStr, onNext);
+        $('#prev').on(downEventStr, onPrev);
 
         requestAnimationFrame(render);
 
@@ -93,6 +94,28 @@ namespace.module('gdg.canvas', function (exports, require) {
                   window.devicePixelRatio + ', ' + $canvas.css('width') + ', ' + $canvas.css('height') +
                  ', ' + HEADER_HEIGHT + ', ' + $canvas[0].offsetTop);
         }, 3000);*/
+        window.enable = enable;
+    }
+
+    function enable(element, which) {
+        while (element.length) {  // un-jQuery wrap if needed
+            element = element[0];
+        }
+        if (which === true) {
+            element.disabled = false;
+        } else if (which === false) {
+            element.disabled = true;
+        } else {
+            element.disabled = !element.disabled;
+        }
+    }
+
+    function onNext() {
+
+    }
+
+    function onPrev() {
+        
     }
 
     function saveCanvas(canvas) {
@@ -119,10 +142,7 @@ namespace.module('gdg.canvas', function (exports, require) {
 
     function onResize() {
         windowSize = [window.innerWidth, window.innerHeight];
-        console.log(windowSize);
-        console.log(HEADER_HEIGHT);
         var canvasSpace = [windowSize[0], windowSize[1] - HEADER_HEIGHT];
-        console.log(canvasSpace);
         var marginTop = 0;
 
         // if the window is more landscape than the canvas is, vertical letterboxes
@@ -140,13 +160,12 @@ namespace.module('gdg.canvas', function (exports, require) {
     }
 
     function render(time) {
-        var fps;
+        var touch;
 
         $('#fps').empty().append(getFps(time, lastTime));
 
         while (touchQueue.length > 0) {
-            var touch = touchQueue.shift();
-
+            touch = touchQueue.shift();
             touch.x /= canvasScale;
             touch.y /= canvasScale;
             if (touch.type === 'down') {
@@ -174,12 +193,7 @@ namespace.module('gdg.canvas', function (exports, require) {
         isTouchDown = true;
         event.preventDefault();
         event = exposeTouchEvent(event);
-
-        touchQueue.push({
-            type: 'down',
-            x: event.pageX - event.target.offsetLeft,
-            y: event.pageY - event.target.offsetTop
-        });
+        enqueueTouch('down', event);
     }
 
     function onMove(event) {
@@ -188,12 +202,7 @@ namespace.module('gdg.canvas', function (exports, require) {
         }
         event.preventDefault();
         event = exposeTouchEvent(event);
-
-        touchQueue.push({
-            type: 'move',
-            x: event.pageX - event.target.offsetLeft,
-            y: event.pageY - event.target.offsetTop
-        });
+        enqueueTouch('move', event);
     }
 
     function onUp(event) {
@@ -201,9 +210,13 @@ namespace.module('gdg.canvas', function (exports, require) {
             return;
         }
         event = exposeTouchEvent(event);
+        enqueueTouch('up', event);
+        isTouchDown = false;
+    }
 
+    function enqueueTouch(type, event) {
         touchQueue.push({
-            type: 'up',
+            type: type,
             x: event.pageX - event.target.offsetLeft,
             y: event.pageY - event.target.offsetTop
         });

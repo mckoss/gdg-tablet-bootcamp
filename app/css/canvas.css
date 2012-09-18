@@ -1,7 +1,7 @@
 body {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  overflow: auto;
   margin: 0;
 }
 canvas#main {
@@ -10,34 +10,46 @@ canvas#main {
   margin: 0 auto;
 }
 #control {
-  display: block;
   height: 30px;
   padding: 0 10px;
   font-family: Helvetica sans-serif;
   font-size: 16px;
   line-height: 30px;
 }
+#control > * {
+  margin-left: 3px;
+  margin-right: 3px;
+}
 #control label {
   height: 30px;
   line-height: 30px;
-  margin: 0;
   text-align: center;
+  float: left;
 }
-#control div {
+#control > div {
   display: inline-block;
+  float: left;
 }
 #control #fps {
-  width: 30px;
-}
-#control #color-demo {
   width: 20px;
+}
+#control #color-demo-container {
+  width: 20px;
+  height: 20px;
+  padding-top: 5px;
+}
+#control #color-demo-container #color-demo {
+  width: 20px;
+  height: 20px;
   border-radius: 11px;
-  background-color: black
+  background-color: black;
 }
 #control input {
   height: 24px;
   line-height: 20px;
   font-size: inherit;
+  float: left;
+  margin-top: 3px;
 }
 #control #color {
   width: 60px;
@@ -46,4 +58,10 @@ canvas#main {
 #control #line-width {
   width: 40px;
   text-align: center;
+}
+button {
+  float: left;
+  height: 24px;
+  line-height: 20px;
+  margin-top: 3px;
 }
