@@ -38,14 +38,20 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         isTouchDevice = Modernizr.touch;
 
-        if (isTouchDevice) {
-            $(document).on('touchstart', function (event) {
-                event.preventDefault();
-            });
-        }
         downEventStr = isTouchDevice ? 'touchstart' : 'mousedown';
         moveEventStr = isTouchDevice ? 'touchmove'  : 'mousemove';
         upEventStr   = isTouchDevice ? 'touchend'   : 'mouseup';
+
+        if (isTouchDevice) {
+            $(document).on('touchstart', function (event) {
+                if (event.target.nodeName !== 'INPUT') {
+                    event.preventDefault();
+                }
+            });
+            $(document).on('touchmove', function (event) {
+                event.preventDefault();
+            });
+        }
 
         $canvas = $('canvas');
         orientation = getOrientation();
@@ -94,6 +100,13 @@ namespace.module('gdg.canvas', function (exports, require) {
                   window.devicePixelRatio + ', ' + $canvas.css('width') + ', ' + $canvas.css('height') +
                  ', ' + HEADER_HEIGHT + ', ' + $canvas[0].offsetTop);
         }, 3000);*/
+        setTimeout(function () {
+            var suf = ['top', 'right', 'bottom', 'left'];
+            for (var i = 0; i < suf.length; i++) {
+                console.log($('#color').css('padding-' + suf[i]))
+            }
+        }, 3000);
+        
         window.enable = enable;
     }
 
