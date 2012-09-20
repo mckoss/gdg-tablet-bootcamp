@@ -95,17 +95,7 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         requestAnimationFrame(render);
 
-        /*setTimeout(function () {
-            alert('[' + window.innerWidth + ', ' + window.innerHeight + '], pixelRatio:' +
-                  window.devicePixelRatio + ', ' + $canvas.css('width') + ', ' + $canvas.css('height') +
-                 ', ' + HEADER_HEIGHT + ', ' + $canvas[0].offsetTop);
-        }, 3000);*/
-        setTimeout(function () {
-            var suf = ['top', 'right', 'bottom', 'left'];
-            for (var i = 0; i < suf.length; i++) {
-                console.log($('#color').css('padding-' + suf[i]))
-            }
-        }, 3000);
+        debugLogs();
         
         window.enable = enable;
     }
@@ -124,7 +114,7 @@ namespace.module('gdg.canvas', function (exports, require) {
     }
 
     function onNext() {
-
+        
     }
 
     function onPrev() {
@@ -155,21 +145,26 @@ namespace.module('gdg.canvas', function (exports, require) {
 
     function onResize() {
         windowSize = [window.innerWidth, window.innerHeight];
-        var canvasSpace = [windowSize[0], windowSize[1] - HEADER_HEIGHT];
+        var size = canvasSize;
+        var space = [windowSize[0], windowSize[1] - HEADER_HEIGHT];
         var marginTop = 0;
 
         // if the window is more landscape than the canvas is, vertical letterboxes
-        if (canvasSpace[0] / canvasSpace[1] > canvasSize[0] / canvasSize[1]) {
-            canvasScale = canvasSpace[1] / canvasSize[1];
+        if (space[0] / space[1] > size[0] / size[1]) {
+            // margin auto on left and right will center it
+            scale = space[1] / size[1];
         } else {
-            canvasScale = canvasSpace[0] / canvasSize[0];
-            marginTop = (canvasSpace[1] - canvasSize[1] * canvasScale) / 2;
+            // horizontal letterboxes
+            // set margin top so it will be centered
+            scale = space[0] / size[0];
+            marginTop = (space[1] - size[1] * scale) / 2;
         }
         $canvas.css({
             'margin-top': marginTop,
-            'width': canvasSize[0] * canvasScale,
-            'height': canvasSize[1] * canvasScale
+            'width': size[0] * scale,
+            'height': size[1] * scale
         });
+        canvasSize = size;
     }
 
     function render(time) {
@@ -266,6 +261,21 @@ namespace.module('gdg.canvas', function (exports, require) {
             return e.originalEvent.touches[0];
         }
         return e; // is not a touch event
+    }
+
+    function debugLogs() {
+        return;
+        setTimeout(function () {
+            alert('[' + window.innerWidth + ', ' + window.innerHeight + '], pixelRatio:' +
+                  window.devicePixelRatio + ', ' + $canvas.css('width') + ', ' + $canvas.css('height') +
+                 ', ' + HEADER_HEIGHT + ', ' + $canvas[0].offsetTop);
+        }, 3000);
+        setTimeout(function () {
+            var suf = ['top', 'right', 'bottom', 'left'];
+            for (var i = 0; i < suf.length; i++) {
+                console.log($('#color').css('padding-' + suf[i]))
+            }
+        }, 3000);
     }
 
 });
