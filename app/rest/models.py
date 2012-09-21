@@ -4,6 +4,7 @@ import logging
 import json
 
 from google.appengine.ext import db
+from google.appengine.api import users
 from google.appengine.api.datastore_errors import *
 from google.appengine.api.datastore_types import Text
 
@@ -41,6 +42,8 @@ class RESTModel(HasReadOnly, db.Model):
 
     name = db.StringProperty()
     owner_email = db.StringProperty()
+
+    private_model = False
 
     def set_defaults(self):
         pass
@@ -146,6 +149,13 @@ class RESTModel(HasReadOnly, db.Model):
         if self.owner_email is None or self.owner_email == 'anonymous':
             return True
         return self.owner_email == user_email
+
+    @classmethod
+    def all(cls):
+        query = super(RESTModel, cls).all()
+        if not cls.private_model:
+            return query
+        return query.filter('owner_email =', users.get_current_user().email())
 
 
 class Timestamped(HasReadOnly, db.Model):

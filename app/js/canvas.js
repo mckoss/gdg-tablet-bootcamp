@@ -5,6 +5,8 @@ namespace.module('gdg.canvas', function (exports, require) {
         setTimeout(init, 0);  // let the DOM catch up before calling init
     });
 
+    var DEBUG = false;
+
     var isTouchDevice;   // boolean
 
     var fpsAverage = 60;
@@ -39,9 +41,10 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         isTouchDevice = Modernizr.touch;
 
-        downEventStr = isTouchDevice ? 'touchstart' : 'mousedown';
-        moveEventStr = isTouchDevice ? 'touchmove'  : 'mousemove';
-        upEventStr   = isTouchDevice ? 'touchend'   : 'mouseup';
+        downEventStr  = isTouchDevice ? 'touchstart'  : 'mousedown';
+        moveEventStr  = isTouchDevice ? 'touchmove'   : 'mousemove';
+        upEventStr    = isTouchDevice ? 'touchend'    : 'mouseup';
+        leaveEventStr = isTouchDevice ? 'touchcancel' : 'mouseleave';
 
         if (isTouchDevice) {
             // prevent some defaults so the user can't scroll / drag the page
@@ -79,11 +82,6 @@ namespace.module('gdg.canvas', function (exports, require) {
         // set the canvas size based on the orientation
         canvasSize = getCanvasSize(orientation);
 
-
-        // set the canvas line width and stroke style
-        ctx.lineWidth = $('#line-width').val();
-        ctx.strokeStyle = '#' + $('#color').val();
-
         // construct the page object and put it in the array of pages
         iPage = 0;
         pages[iPage] = {
@@ -91,6 +89,7 @@ namespace.module('gdg.canvas', function (exports, require) {
             ctx: ctx,
             size: canvasSize,
             orientation: orientation,
+            clean: true,
             scale: undefined            // scale set in onResize / scaleCanvas
         };
 
@@ -104,7 +103,13 @@ namespace.module('gdg.canvas', function (exports, require) {
         $(window).on('resize', onResize);    // detect resize events
         onResize();                          // call resize to initialize some values
 
-        debugLogs();
+        $(window).on(leaveEventStr, onLeave);
+
+        $(window).on('unload', save);
+
+        if (DEBUG) {
+            debugLogs();
+        }
         requestAnimationFrame(render);       // render the first frame, starting a chain of renders
     }
 
@@ -125,7 +130,8 @@ namespace.module('gdg.canvas', function (exports, require) {
     }
 
     function changePage(i) {
-        if (i < 0 || i > pages.length || i === iPage) {
+        if (i < 0 || i > pages.length || i === iPage ||
+            (pages[iPage].clean === true && i === pages.length)) {
             return;
         }
 
@@ -134,13 +140,14 @@ namespace.module('gdg.canvas', function (exports, require) {
         page.data = page.$canvas[0].toDataURL();
         if (i === pages.length) {
             // HACK since we are only using one canvas, might as well be
-            // a global var take canvas and ctx vars from pages[0]
+            // a global var, so take the one and only canvas and ctx vars from pages[0]
             var orientation = getOrientation();
             pages[i] = {
                 $canvas: pages[0].$canvas,
                 ctx: pages[0].ctx,
                 size: getCanvasSize(orientation),
-                orientation: orientation
+                orientation: orientation,
+                clean: true
             };
         }
 
@@ -161,6 +168,10 @@ namespace.module('gdg.canvas', function (exports, require) {
         iPage = i;
     }
 
+    function save() {
+        
+    }
+
     function changeColor() {
         var color = '#' + $(this).val();
         pages[iPage].ctx.strokeStyle = color;
@@ -177,13 +188,22 @@ namespace.module('gdg.canvas', function (exports, require) {
     }
 
     function resetCanvas(page) {
+        var canvas, ctx, size;
         if (page === undefined) {
             page = pages[iPage];
         }
-        page.$canvas[0].width = page.size[0];
-        page.$canvas[0].height = page.size[1];
-        page.ctx.fillStyle = '#ddd';
-        page.ctx.fillRect(0, 0, page.size[0], page.size[1]);
+        canvas = page.$canvas[0];
+        ctx = page.ctx;
+        size = page.size;
+
+        canvas.width = size[0];
+        canvas.height = size[1];
+        ctx.fillStyle = '#ddd';
+        ctx.fillRect(0, 0, size[0], size[1]);
+
+        // set the canvas line width and stroke style
+        ctx.lineWidth = $('#line-width').val();
+        ctx.strokeStyle = '#' + $('#color').val();
     }
 
     function sizeCanvas(page) {
@@ -220,8 +240,11 @@ namespace.module('gdg.canvas', function (exports, require) {
             touch = touchQueue.shift();
             touch.x /= scale;
             touch.y /= scale;
-	    console.log('render, type: ' + touch.type + ' x: ' +
-			Math.round(touch.x) + ', ' + Math.round(touch.y));
+	    //console.log('render, type: ' + touch.type + ' x: ' +
+	    //     Math.round(touch.x) + ' y: ' + Math.round(touch.y));
+            if (pages[iPage].clean === true) {
+                pages[iPage].clean = false;
+            }
             if (touch.type === 'down') {
                 ctx.beginPath();
                 ctx.moveTo(touch.x, touch.y);
@@ -257,12 +280,6 @@ namespace.module('gdg.canvas', function (exports, require) {
             return;
         }
 
-        if (event.target.nodeName !== 'CANVAS') {
-            enqueueTouch('up', event, pages[iPage].$canvas[0]);
-            isTouchDown = false;
-            return;
-        }
-
         event.preventDefault();
         enqueueTouch('move', event);
     }
@@ -272,23 +289,21 @@ namespace.module('gdg.canvas', function (exports, require) {
             return;
         }
 
-        if (event.target.nodeName !== 'CANVAS') {
-            return;
-        }
-
         enqueueTouch('up', event);
         isTouchDown = false;
     }
 
-    function enqueueTouch(type, event, target) {
-	if (target !== undefined) {
-	    event.target = target;
-	}
+    function onLeave(event) {
+        isTouchDown = false;
+    }
+
+    function enqueueTouch(type, event) {
+        var canvas = pages[iPage].$canvas[0];
         exposeTouchEvent(event);
         touchQueue.push({
             type: type,
-            x: event.pageX - event.target.offsetLeft,
-            y: event.pageY - event.target.offsetTop
+            x: event.pageX - canvas.offsetLeft,
+            y: event.pageY - canvas.offsetTop
         });
     }
 
@@ -325,6 +340,13 @@ namespace.module('gdg.canvas', function (exports, require) {
     }
 
     function debugLogs() {
+        var everyMouseTouchEvent = 'mousedown mouseup mouseover mousemove mouseleave ' + 
+            'touchstart touchend touchcancel touchleave touchmove';
+        $(window).on(everyMouseTouchEvent, function (event) {
+            console.log('type: ' + event.type.replace('mouse', '').replace('touch', '') +
+                        ', target: ' + event.target.nodeName.toLowerCase());
+        });
+
         /*        setTimeout(function () {
             alert('[' + window.innerWidth + ', ' + window.innerHeight + '], pixelRatio:' +
                   window.devicePixelRatio + ', ' + $canvas.css('width') + ', ' + $canvas.css('height') +

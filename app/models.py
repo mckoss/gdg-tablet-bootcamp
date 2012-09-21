@@ -51,7 +51,7 @@ class Showdown(RESTModel, Timestamped):
 
 
 class Canvas(RESTModel, Timestamped):
-    title = db.StringProperty()
     data = db.TextProperty()
+    private_model = True
 
-    form_order = ('title')
+    form_order = ()
