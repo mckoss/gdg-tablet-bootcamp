@@ -1,3 +1,16 @@
+/*
+  Bobby Seidensticker
+  9/21/2012
+
+  Notebook application using HTML5 Canvas
+  
+  Note 1: Right now, there is only one canvas for every single page.  When the user scrolls
+  to a new page, the canvas is saved, cleared, and the new page data (if any) is put in the canvas.
+  Every single page object in the array pages has its own $canvas and ctx properties which are
+  references to the same canvas and context.  This is just room for expansion if a page transition
+  is desired.
+*/
+
 namespace.module('gdg.canvas', function (exports, require) {
     require('org.startpad.funcs').patch();
 
@@ -60,12 +73,22 @@ namespace.module('gdg.canvas', function (exports, require) {
         // get the height of the toolbar
         HEADER_HEIGHT = parseInt($('#control').css('height'), 10);
 
+        $.ajax({
+            url: '/data/canvas',
+            success: bindEvents,
+            error: function () {
+                console.log('ERROR in ajax call to /data/canvas');
+                console.log(arguments);
+            }
+        });
+    }
+
+    function bindEvents(results, resultEventType, event) {
+        var size, orientation, result;
+
         // set change and keyup events on the color and line width inputs
         $('#color').on('change keyup', changeColor);
         $('#line-width').on('change keyup', changeLineWidth);
-
-        // NEXT LINE PROBABLY USELESS
-        $('input').on(downEventStr, function () { this.focus(); });
 
         $('#next').on(downEventStr, function() { changePage(iPage + 1); });
         $('#prev').on(downEventStr, function() { changePage(iPage - 1); });
@@ -76,22 +99,41 @@ namespace.module('gdg.canvas', function (exports, require) {
         // get the drawing context from the canvas
         ctx = $canvas[0].getContext('2d');
 
-        // get the device orientation, portrait or landscape
-        orientation = getOrientation();
-
-        // set the canvas size based on the orientation
-        canvasSize = getCanvasSize(orientation);
-
-        // construct the page object and put it in the array of pages
         iPage = 0;
-        pages[iPage] = {
-            $canvas: $canvas,
-            ctx: ctx,
-            size: canvasSize,
-            orientation: orientation,
-            clean: true,
-            scale: undefined            // scale set in onResize / scaleCanvas
-        };
+        if (results.length === 0) {  // if no stored canvases for this user
+
+            orientation = getOrientation();
+            size = getCanvasSize(orientation);
+
+            pages[iPage] = {
+                $canvas: $canvas, // see note 1 at top
+                ctx: ctx,
+                size: size,
+                orientation: orientation,
+                clean: true,
+                scale: undefined            // scale set in onResize / scaleCanvas
+            };
+        } else {
+            // if there are stored canvases for the user, initialize them
+            for (var i = 0; i < results.length; i++) {
+                result = results[i];
+                if (!result.orientation) {
+                    result.orientation = 'portrait';
+                }
+                size = getCanvasSize(result.orientation);
+
+                pages[i] = {
+                    $canvas: $canvas, // see note 1 at top
+                    ctx: ctx,
+                    size: size,
+                    orientation: result.orientation,
+                    data: result.data,
+                    clean: false,
+                    scale: undefined            // scale set in onResize / scaleCanvas
+                };
+            }
+            changePage(results.length - 1);
+        }
 
         resetCanvas();
 
@@ -110,10 +152,12 @@ namespace.module('gdg.canvas', function (exports, require) {
         if (DEBUG) {
             debugLogs();
         }
+
         requestAnimationFrame(render);       // render the first frame, starting a chain of renders
     }
 
     function getCanvasSize(orientation) {
+        console.log('getCanvasSize(' + orientation + ')');
         var size = [];
         // set the canvas size based on the orientation
         if (orientation === 'portrait') {
@@ -134,6 +178,7 @@ namespace.module('gdg.canvas', function (exports, require) {
             (pages[iPage].clean === true && i === pages.length)) {
             return;
         }
+        console.log('changing page to page # ' + (i + 1));
 
         var page = pages[iPage];
 
@@ -156,7 +201,7 @@ namespace.module('gdg.canvas', function (exports, require) {
         resetCanvas(page);
         sizeCanvas(page);
 
-        if (page.data !== undefined) {
+        if (page.data) {
             console.log('canvas has some page data, drawing it');
             var img = new Image();
             $(img).on('load', function () {
