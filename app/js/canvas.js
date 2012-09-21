@@ -220,6 +220,8 @@ namespace.module('gdg.canvas', function (exports, require) {
             touch = touchQueue.shift();
             touch.x /= scale;
             touch.y /= scale;
+	    console.log('render, type: ' + touch.type + ' x: ' +
+			Math.round(touch.x) + ', ' + Math.round(touch.y));
             if (touch.type === 'down') {
                 ctx.beginPath();
                 ctx.moveTo(touch.x, touch.y);
@@ -233,7 +235,6 @@ namespace.module('gdg.canvas', function (exports, require) {
             } else if (touch.type === 'up') {
                 ctx.lineTo(touch.x, touch.y);
                 ctx.stroke();
-                isTouchDown = undefined;
             }
         }
 
@@ -257,7 +258,7 @@ namespace.module('gdg.canvas', function (exports, require) {
         }
 
         if (event.target.nodeName !== 'CANVAS') {
-            enqueueTouch('up', event);
+            enqueueTouch('up', event, pages[iPage].$canvas[0]);
             isTouchDown = false;
             return;
         }
@@ -279,7 +280,10 @@ namespace.module('gdg.canvas', function (exports, require) {
         isTouchDown = false;
     }
 
-    function enqueueTouch(type, event) {
+    function enqueueTouch(type, event, target) {
+	if (target !== undefined) {
+	    event.target = target;
+	}
         exposeTouchEvent(event);
         touchQueue.push({
             type: type,
