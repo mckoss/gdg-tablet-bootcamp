@@ -6,10 +6,7 @@ namespace.module('gdg.canvas', function (exports, require) {
     });
 
     var isTouchDevice;   // boolean
-    var $canvas;         // jQuery wrapped html canvas element
-    var ctx;
-    var windowSize;      // 2 element array recording the window size
-    var orientation;     // string, 'portrait' or 'landscape
+
     var fpsAverage = 60;
     var lastTime = new Date().getTime();
 
@@ -28,13 +25,17 @@ namespace.module('gdg.canvas', function (exports, require) {
     );
 
     var HEADER_HEIGHT;
-    var DEVICE_PIXEL_RATIO = 1.325;
-    var PORTRAIT = [603, 796];
-    var LANDSCAPE = [965, 443];
-    var canvasSize = [];
-    var canvasScale;
+    var DEVICE_PIXEL_RATIO = 1.325;  // device pixel to css pixel ratio on a nexus 7
+    var PORTRAIT = [603, 796];  // CSS pixels available in portrait  mode in chrome on a nexus 7
+    var LANDSCAPE = [965, 443]; // CSS pixels available in landscape mode in chrome on a nexus 7
+
+    var pages = [];
+    var iPage;
 
     function init() {
+        var orientation;
+        var $canvas;
+        var ctx;
 
         isTouchDevice = Modernizr.touch;
 
@@ -43,6 +44,7 @@ namespace.module('gdg.canvas', function (exports, require) {
         upEventStr   = isTouchDevice ? 'touchend'   : 'mouseup';
 
         if (isTouchDevice) {
+            // prevent some defaults so the user can't scroll / drag the page
             $(document).on('touchstart', function (event) {
                 if (event.target.nodeName !== 'INPUT') {
                     event.preventDefault();
@@ -52,101 +54,141 @@ namespace.module('gdg.canvas', function (exports, require) {
                 event.preventDefault();
             });
         }
-
-        $canvas = $('canvas');
-        orientation = getOrientation();
-
-        if (orientation === 'portrait') {
-            canvasSize[0] = PORTRAIT[0] * DEVICE_PIXEL_RATIO;
-            canvasSize[1] = PORTRAIT[1] * DEVICE_PIXEL_RATIO;
-        } else if (orientation === 'landscape') {
-            canvasSize[0] = LANDSCAPE[0] * DEVICE_PIXEL_RATIO;
-            canvasSize[1] = LANDSCAPE[1] * DEVICE_PIXEL_RATIO;
-        } else {
-            console.log('ERROR: you have spelled something wrong');
-            return;
-        }
-        $canvas[0].width = canvasSize[0];
-        $canvas[0].height = canvasSize[1];
-
+        // get the height of the toolbar
         HEADER_HEIGHT = parseInt($('#control').css('height'), 10);
 
-        ctx = $canvas[0].getContext('2d');
-
-        ctx.fillStyle = '#ddd';
-        ctx.fillRect(0, 0, canvasSize[0], canvasSize[1]);
-        ctx.lineWidth = $('#line-width').val();
-        ctx.strokeStyle = '#' + $('#color').val();
-
-        $canvas.on(downEventStr, onDown);
-        $canvas.on(moveEventStr, onMove);
-        $canvas.on(upEventStr,   onUp);
-
+        // set change and keyup events on the color and line width inputs
         $('#color').on('change keyup', changeColor);
         $('#line-width').on('change keyup', changeLineWidth);
 
-        $(window).on('resize', onResize);
-        onResize();
-
+        // NEXT LINE PROBABLY USELESS
         $('input').on(downEventStr, function () { this.focus(); });
 
-        $('#next').on(downEventStr, onNext);
-        $('#prev').on(downEventStr, onPrev);
+        $('#next').on(downEventStr, function() { changePage(iPage + 1); });
+        $('#prev').on(downEventStr, function() { changePage(iPage - 1); });
 
-        requestAnimationFrame(render);
+        // grab the canvas from the dom, note it is jQuery wrapped
+        $canvas = $('#c0');
+
+        // get the drawing context from the canvas
+        ctx = $canvas[0].getContext('2d');
+
+        // get the device orientation, portrait or landscape
+        orientation = getOrientation();
+
+        // set the canvas size based on the orientation
+        canvasSize = getCanvasSize(orientation);
+
+
+        // set the canvas line width and stroke style
+        ctx.lineWidth = $('#line-width').val();
+        ctx.strokeStyle = '#' + $('#color').val();
+
+        // construct the page object and put it in the array of pages
+        iPage = 0;
+        pages[iPage] = {
+            $canvas: $canvas,
+            ctx: ctx,
+            size: canvasSize,
+            orientation: orientation,
+            scale: undefined            // scale set in onResize / scaleCanvas
+        };
+
+        resetCanvas();
+
+        // detect user touch/mouse events
+        $(document).on(downEventStr, onDown);
+        $(document).on(moveEventStr, onMove);
+        $(document).on(upEventStr,   onUp);
+
+        $(window).on('resize', onResize);    // detect resize events
+        onResize();                          // call resize to initialize some values
 
         debugLogs();
-        
-        window.enable = enable;
+        requestAnimationFrame(render);       // render the first frame, starting a chain of renders
     }
 
-    function enable(element, which) {
-        while (element.length) {  // un-jQuery wrap if needed
-            element = element[0];
-        }
-        if (which === true) {
-            element.disabled = false;
-        } else if (which === false) {
-            element.disabled = true;
+    function getCanvasSize(orientation) {
+        var size = [];
+        // set the canvas size based on the orientation
+        if (orientation === 'portrait') {
+            size[0] = PORTRAIT[0] * DEVICE_PIXEL_RATIO;
+            size[1] = (PORTRAIT[1] - HEADER_HEIGHT) * DEVICE_PIXEL_RATIO;
+        } else if (orientation === 'landscape') {
+            size[0] = LANDSCAPE[0] * DEVICE_PIXEL_RATIO;
+            size[1] = (LANDSCAPE[1] - HEADER_HEIGHT) * DEVICE_PIXEL_RATIO;
         } else {
-            element.disabled = !element.disabled;
+            console.log('ERROR: you have spelled something wrong');
+            return [];
         }
+        return size;
     }
 
-    function onNext() {
-        
-    }
+    function changePage(i) {
+        if (i < 0 || i > pages.length || i === iPage) {
+            return;
+        }
 
-    function onPrev() {
-        
-    }
+        var page = pages[iPage];
 
-    function saveCanvas(canvas) {
-        $('body').append(hiddenCanvas({
-            id: hiddenCanvasUID,
-            width: canvas.width,
-            height: canvas.height
-        }));
-        var newCanvas = $('#hidden-canvas-' + hiddenCanvasUID)[0];
-        newCanvas.getContext('2d').drawImage(canvas, 0, 0);
+        page.data = page.$canvas[0].toDataURL();
+        if (i === pages.length) {
+            // HACK since we are only using one canvas, might as well be
+            // a global var take canvas and ctx vars from pages[0]
+            var orientation = getOrientation();
+            pages[i] = {
+                $canvas: pages[0].$canvas,
+                ctx: pages[0].ctx,
+                size: getCanvasSize(orientation),
+                orientation: orientation
+            };
+        }
 
-        hiddenCanvasUID++;
+        page = pages[i];
+
+        resetCanvas(page);
+        sizeCanvas(page);
+
+        if (page.data !== undefined) {
+            console.log('canvas has some page data, drawing it');
+            var img = new Image();
+            $(img).on('load', function () {
+                page.ctx.drawImage(img, 0, 0);
+            });
+            img.src = page.data;
+        }
+
+        iPage = i;
     }
 
     function changeColor() {
         var color = '#' + $(this).val();
-        ctx.strokeStyle = color;
+        pages[iPage].ctx.strokeStyle = color;
         $('#color-demo').css('background-color', color);
     }
 
     function changeLineWidth() {
-        ctx.lineWidth = parseFloat($(this).val());
+        pages[iPage].ctx.lineWidth = parseFloat($(this).val());
     }
 
     function onResize() {
-        windowSize = [window.innerWidth, window.innerHeight];
-        var size = canvasSize;
-        var space = [windowSize[0], windowSize[1] - HEADER_HEIGHT];
+        var page = pages[iPage];
+        sizeCanvas(page);
+    }
+
+    function resetCanvas(page) {
+        if (page === undefined) {
+            page = pages[iPage];
+        }
+        page.$canvas[0].width = page.size[0];
+        page.$canvas[0].height = page.size[1];
+        page.ctx.fillStyle = '#ddd';
+        page.ctx.fillRect(0, 0, page.size[0], page.size[1]);
+    }
+
+    function sizeCanvas(page) {
+        var size = page.size;
+        var space = [window.innerWidth, window.innerHeight - HEADER_HEIGHT];
         var marginTop = 0;
 
         // if the window is more landscape than the canvas is, vertical letterboxes
@@ -159,23 +201,25 @@ namespace.module('gdg.canvas', function (exports, require) {
             scale = space[0] / size[0];
             marginTop = (space[1] - size[1] * scale) / 2;
         }
-        $canvas.css({
+        page.$canvas.css({
             'margin-top': marginTop,
             'width': size[0] * scale,
             'height': size[1] * scale
         });
-        canvasSize = size;
+        page.scale = scale;
     }
 
     function render(time) {
         var touch;
+        var ctx = pages[iPage].ctx;
+        var scale = pages[iPage].scale;
 
         $('#fps').empty().append(getFps(time, lastTime));
 
         while (touchQueue.length > 0) {
             touch = touchQueue.shift();
-            touch.x /= canvasScale;
-            touch.y /= canvasScale;
+            touch.x /= scale;
+            touch.y /= scale;
             if (touch.type === 'down') {
                 ctx.beginPath();
                 ctx.moveTo(touch.x, touch.y);
@@ -198,31 +242,45 @@ namespace.module('gdg.canvas', function (exports, require) {
     }
 
     function onDown(event) {
+        if (event.target.nodeName !== 'CANVAS') {
+            return;
+        }
         isTouchDown = true;
         event.preventDefault();
-        event = exposeTouchEvent(event);
+
         enqueueTouch('down', event);
     }
 
     function onMove(event) {
-        if (isTouchDown !== true) {
+        if (isTouchDown === false) {
             return;
         }
+
+        if (event.target.nodeName !== 'CANVAS') {
+            enqueueTouch('up', event);
+            isTouchDown = false;
+            return;
+        }
+
         event.preventDefault();
-        event = exposeTouchEvent(event);
         enqueueTouch('move', event);
     }
 
     function onUp(event) {
-        if (isTouchDown !== true) {
+        if (isTouchDown === false) {
             return;
         }
-        event = exposeTouchEvent(event);
+
+        if (event.target.nodeName !== 'CANVAS') {
+            return;
+        }
+
         enqueueTouch('up', event);
         isTouchDown = false;
     }
 
     function enqueueTouch(type, event) {
+        exposeTouchEvent(event);
         touchQueue.push({
             type: type,
             x: event.pageX - event.target.offsetLeft,
@@ -258,28 +316,40 @@ namespace.module('gdg.canvas', function (exports, require) {
     // if is a touch event, expose the real touch event (to get at pageX/Y)
     function exposeTouchEvent(e) {
         if (e.originalEvent && e.originalEvent.touches && e.originalEvent.touches.length > 0) {
-            return e.originalEvent.touches[0];
+            $.extend(e, e.originalEvent.touches[0]);
         }
-        return e; // is not a touch event
     }
 
     function debugLogs() {
-        return;
-        setTimeout(function () {
+        /*        setTimeout(function () {
             alert('[' + window.innerWidth + ', ' + window.innerHeight + '], pixelRatio:' +
                   window.devicePixelRatio + ', ' + $canvas.css('width') + ', ' + $canvas.css('height') +
                  ', ' + HEADER_HEIGHT + ', ' + $canvas[0].offsetTop);
         }, 3000);
+        
         setTimeout(function () {
             var suf = ['top', 'right', 'bottom', 'left'];
             for (var i = 0; i < suf.length; i++) {
                 console.log($('#color').css('padding-' + suf[i]))
             }
-        }, 3000);
+        }, 3000);*/
     }
 
 });
 
+(function($) {
+    $.fn.extend({
+        enable: function (which) {
+            this.each(function () {
+                if (which === undefined) {
+                    this.disabled = !this.disabled;
+                } else {
+                    this.disabled = !which;
+                }
+            });
+        }
+    });
+})(jQuery);
 
 // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
 // http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
