@@ -155,6 +155,8 @@ class RESTModel(HasReadOnly, db.Model):
         query = super(RESTModel, cls).all()
         if not cls.private_model:
             return query
+        if users.get_current_user() is None:
+            return query.filter('owner_email =', None)
         return query.filter('owner_email =', users.get_current_user().email())
 
 

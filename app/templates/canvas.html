@@ -25,7 +25,14 @@
   <label>Line Width:</label>
   <input id="line-width" type="number" value="2" />
 
+  {% if username %}
+  <span><a href="{{ sign_out }}">Sign out</a></span>
+  {% else %}
+  <span><a href="{{ sign_in }}">Sign in</a></span>
+  {% endif %}
+
   <button id="next">Next</button>
+  <button id="save">Save</button>
 </span>
 
 <canvas id="c0"><p>Canvas not supported</p></canvas>

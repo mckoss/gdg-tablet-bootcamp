@@ -77,7 +77,7 @@ namespace.module('gdg.canvas', function (exports, require) {
             url: '/data/canvas',
             success: bindEvents,
             error: function () {
-                console.log('ERROR in ajax call to /data/canvas');
+                console.log('ERROR in ajax get call to /data/canvas');
                 console.log(arguments);
             }
         });
@@ -92,6 +92,7 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         $('#next').on(downEventStr, function() { changePage(iPage + 1); });
         $('#prev').on(downEventStr, function() { changePage(iPage - 1); });
+        $('#save').on(downEventStr, save);
 
         // grab the canvas from the dom, note it is jQuery wrapped
         $canvas = $('#c0');
@@ -128,11 +129,12 @@ namespace.module('gdg.canvas', function (exports, require) {
                     size: size,
                     orientation: result.orientation,
                     data: result.data,
+                    id: result.id,
                     clean: false,
                     scale: undefined            // scale set in onResize / scaleCanvas
                 };
             }
-            changePage(results.length - 1);
+            changePage(results.length - 1, true);
         }
 
         resetCanvas();
@@ -147,7 +149,7 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         $(window).on(leaveEventStr, onLeave);
 
-        $(window).on('unload', save);
+        $(window).on('unload beforeunload', save);
 
         if (DEBUG) {
             debugLogs();
@@ -173,7 +175,7 @@ namespace.module('gdg.canvas', function (exports, require) {
         return size;
     }
 
-    function changePage(i) {
+    function changePage(i, noSave) {
         if (i < 0 || i > pages.length || i === iPage ||
             (pages[iPage].clean === true && i === pages.length)) {
             return;
@@ -182,7 +184,9 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         var page = pages[iPage];
 
-        page.data = page.$canvas[0].toDataURL();
+        if (!noSave) {
+            page.data = page.$canvas[0].toDataURL();
+        }
         if (i === pages.length) {
             // HACK since we are only using one canvas, might as well be
             // a global var, so take the one and only canvas and ctx vars from pages[0]
@@ -214,7 +218,48 @@ namespace.module('gdg.canvas', function (exports, require) {
     }
 
     function save() {
-        
+        var page, i, saveData;
+
+        page = pages[iPage];
+        page.data = page.$canvas[0].toDataURL();
+
+        for (i = 0; i < pages.length; i++) {
+            page = pages[i];
+            if (page.clean === true) {
+                continue;
+            }
+
+            saveData = JSON.stringify({
+                data: page.data,
+                orientation: page.orientation
+            });
+
+            if (page.id !== undefined) { // if this page had been loaded from server before
+                $.ajax({
+                    type: 'PUT',
+                    url: '/data/canvas/' + page.id,
+                    data: saveData,
+                    error: function () {
+                        console.log('ERROR in ajax put call to /data/canvas/' + page.id);
+                    },
+                    success: onSaveSuccess
+                });
+            } else {
+                $.ajax({
+                    type: 'POST',
+                    url: '/data/canvas',
+                    data: saveData,
+                    error: function () {
+                        console.log('ERROR in ajax post call to /data/canvas');
+                    },
+                    success: onSaveSuccess
+                });
+            }
+        }
+    }
+
+    function onSaveSuccess() {
+        console.log('saved');
     }
 
     function changeColor() {
@@ -285,8 +330,8 @@ namespace.module('gdg.canvas', function (exports, require) {
             touch = touchQueue.shift();
             touch.x /= scale;
             touch.y /= scale;
-	    //console.log('render, type: ' + touch.type + ' x: ' +
-	    //     Math.round(touch.x) + ' y: ' + Math.round(touch.y));
+            //console.log('render, type: ' + touch.type + ' x: ' +
+            //     Math.round(touch.x) + ' y: ' + Math.round(touch.y));
             if (pages[iPage].clean === true) {
                 pages[iPage].clean = false;
             }
@@ -393,17 +438,17 @@ namespace.module('gdg.canvas', function (exports, require) {
         });
 
         /*        setTimeout(function () {
-            alert('[' + window.innerWidth + ', ' + window.innerHeight + '], pixelRatio:' +
+                  alert('[' + window.innerWidth + ', ' + window.innerHeight + '], pixelRatio:' +
                   window.devicePixelRatio + ', ' + $canvas.css('width') + ', ' + $canvas.css('height') +
-                 ', ' + HEADER_HEIGHT + ', ' + $canvas[0].offsetTop);
-        }, 3000);
-        
-        setTimeout(function () {
-            var suf = ['top', 'right', 'bottom', 'left'];
-            for (var i = 0; i < suf.length; i++) {
-                console.log($('#color').css('padding-' + suf[i]))
-            }
-        }, 3000);*/
+                  ', ' + HEADER_HEIGHT + ', ' + $canvas[0].offsetTop);
+                  }, 3000);
+                  
+                  setTimeout(function () {
+                  var suf = ['top', 'right', 'bottom', 'left'];
+                  for (var i = 0; i < suf.length; i++) {
+                  console.log($('#color').css('padding-' + suf[i]))
+                  }
+                  }, 3000);*/
     }
 
 });
@@ -434,19 +479,19 @@ namespace.module('gdg.canvas', function (exports, require) {
     for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
         window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
         window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
-                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+            || window[vendors[x]+'CancelRequestAnimationFrame'];
     }
- 
+    
     if (!window.requestAnimationFrame)
         window.requestAnimationFrame = function(callback, element) {
             var currTime = new Date().getTime();
             var timeToCall = Math.max(0, 16 - (currTime - lastTime));
             var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
-              timeToCall);
+                                       timeToCall);
             lastTime = currTime + timeToCall;
             return id;
         };
- 
+    
     if (!window.cancelAnimationFrame)
         window.cancelAnimationFrame = function(id) {
             clearTimeout(id);
