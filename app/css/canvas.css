@@ -11,6 +11,12 @@ canvas {
   margin: 0 auto;
 }
 #control {
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
   display: inline-block;
   vertical-align: middle;
   height: 30px;
@@ -36,17 +42,6 @@ canvas {
 #control #fps {
   width: 20px;
 }
-#control #color-demo-container {
-  width: 20px;
-  height: 20px;
-  padding-top: 5px;
-}
-#control #color-demo-container #color-demo {
-  width: 20px;
-  height: 20px;
-  border-radius: 11px;
-  background-color: black;
-}
 #control input {
   height: 24px;
   line-height: 20px;
@@ -57,8 +52,8 @@ canvas {
   /*border: 2px solid #666;*/
   border-radius: 3px;
 }
-#control #color {
-  width: 60px;
+#control .color > input {
+  width: 75px;
   text-align: center;
 }
 #control #line-width {

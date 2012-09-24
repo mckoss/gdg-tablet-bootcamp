@@ -4,6 +4,8 @@
 {{ canvas_scripts|safe }}
 <title>GDG Sample Drawing App</title>
 
+<link rel="stylesheet" type="text/css" href="/css/bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="/css/colorpicker.css" />
 <link rel="stylesheet" type="text/css" href="/css/canvas.css" />
 
 {% endblock %}
@@ -16,10 +18,9 @@
   <label>FPS:</label>
   <div id="fps"></div>
 
-  <label>Color:</label>
-  <input id="color" type="text" maxlength="6" value="000000" />
-  <div id="color-demo-container">
-    <div id="color-demo"></div>
+  <div class="input-append color" data-color="#000000" data-color-format="hex">
+    <input type="text" maxlength="7" value="#000000"/>
+    <span class="add-on"><i style="background-color: #000000"></i></span>
   </div>
 
   <label>Line Width:</label>

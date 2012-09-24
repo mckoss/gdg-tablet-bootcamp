@@ -62,12 +62,6 @@ namespace.module('gdg.canvas', function (exports, require) {
         leaveEventStr = isTouchDevice ? 'touchcancel' : 'mouseleave';
 
         if (isTouchDevice) {
-            // prevent some defaults so the user can't scroll / drag the page
-            $(document).on('touchstart', function (event) {
-                if (event.target.nodeName !== 'INPUT') {
-                    event.preventDefault();
-                }
-            });
             $(document).on('touchmove', function (event) {
                 event.preventDefault();
             });
@@ -89,12 +83,15 @@ namespace.module('gdg.canvas', function (exports, require) {
         var size, orientation, result;
 
         // set change and keyup events on the color and line width inputs
-        $('#color').on('change keyup', changeColor);
+        //$('#color').on('change keyup', changeColor);
         $('#line-width').on('change keyup', changeLineWidth);
 
         $('#next').on(downEventStr, function() { changePage(iPage + 1); });
         $('#prev').on(downEventStr, function() { changePage(iPage - 1); });
         $('#save').on(downEventStr, save);
+
+        $('.color').colorpicker().on('changeColor', changeColor);
+        
 
         // grab the canvas from the dom, note it is jQuery wrapped
         $canvas = $('#c0');
@@ -300,10 +297,11 @@ namespace.module('gdg.canvas', function (exports, require) {
         pages[i].id = savedData.id;
     }
 
-    function changeColor() {
-        var color = '#' + $(this).val();
+    function changeColor(event) {
+        var rbg, color;
+        rgb = event.color.toRGB();
+        color = 'rgb(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ')';
         pages[iPage].ctx.strokeStyle = color;
-        $('#color-demo').css('background-color', color);
     }
 
     function changeLineWidth() {
@@ -358,38 +356,44 @@ namespace.module('gdg.canvas', function (exports, require) {
     }
 
     function render(time) {
-        var touch;
+        var touch, x, y;
         var ctx = pages[iPage].ctx;
         var scale = pages[iPage].scale;
 
         $('#fps').empty().append(getFps(time, lastTime));
+        lastTime = time;
+
+        if (touchQueue.length === 0) {
+            requestAnimationFrame(render);
+            return;
+        }
 
         while (touchQueue.length > 0) {
             touch = touchQueue.shift();
-            touch.x /= scale;
-            touch.y /= scale;
-            //console.log('render, type: ' + touch.type + ' x: ' +
-            //     Math.round(touch.x) + ' y: ' + Math.round(touch.y));
+            x = touch.x / scale;
+            y = touch.y / scale;
+
             if (pages[iPage].clean === true) {
                 pages[iPage].clean = false;
             }
+
             if (touch.type === 'down') {
                 ctx.beginPath();
-                ctx.moveTo(touch.x, touch.y);
-                ctx.lineTo(touch.x, touch.y + 0.1);
+                ctx.moveTo(x, y);
                 ctx.lineCap = 'round';
                 ctx.lineJoin = 'round';
+                ctx.lineTo(x, y + 0.001);
                 ctx.stroke();
-            } else if (touch.type === 'move') {
-                ctx.lineTo(touch.x, touch.y);
-                ctx.stroke();
-            } else if (touch.type === 'up') {
-                ctx.lineTo(touch.x, touch.y);
+            } else {
+                ctx.lineTo(x, y);
                 ctx.stroke();
             }
         }
+        if (touch.type !== 'up') {
+            touch.type = 'down';
+            touchQueue.push(touch);
+        }
 
-        lastTime = time;
         requestAnimationFrame(render);
     }
 
@@ -468,25 +472,32 @@ namespace.module('gdg.canvas', function (exports, require) {
     }
 
     function debugLogs() {
-        var everyMouseTouchEvent = 'mousedown mouseup mouseover mousemove mouseleave ' + 
+        setTimeout(function () {
+            alert('[' + window.innerWidth + ', ' + window.innerHeight + '], pixelRatio:' +
+                  window.devicePixelRatio + ', ' + $canvas.css('width') + ', ' + $canvas.css('height') +
+                  ', ' + HEADER_HEIGHT + ', ' + $canvas[0].offsetTop);
+        }, 2000);
+
+        /*var everyMouseTouchEvent = 'mousedown mouseup mouseover mousemove mouseleave ' + 
             'touchstart touchend touchcancel touchleave touchmove';
         $(window).on(everyMouseTouchEvent, function (event) {
             console.log('type: ' + event.type.replace('mouse', '').replace('touch', '') +
-                        ', target: ' + event.target.nodeName.toLowerCase());
-        });
-
-        /*        setTimeout(function () {
-                  alert('[' + window.innerWidth + ', ' + window.innerHeight + '], pixelRatio:' +
+            ', target: ' + event.target.nodeName.toLowerCase());
+            });*/
+        /*
+        setTimeout(function () {
+            alert('[' + window.innerWidth + ', ' + window.innerHeight + '], pixelRatio:' +
                   window.devicePixelRatio + ', ' + $canvas.css('width') + ', ' + $canvas.css('height') +
                   ', ' + HEADER_HEIGHT + ', ' + $canvas[0].offsetTop);
-                  }, 3000);
-                  
-                  setTimeout(function () {
-                  var suf = ['top', 'right', 'bottom', 'left'];
-                  for (var i = 0; i < suf.length; i++) {
-                  console.log($('#color').css('padding-' + suf[i]))
-                  }
-                  }, 3000);*/
+        }, 3000);
+        
+        setTimeout(function () {
+            var suf = ['top', 'right', 'bottom', 'left'];
+            for (var i = 0; i < suf.length; i++) {
+                console.log($('#color').css('padding-' + suf[i]))
+            }
+        }, 3000);
+*/
     }
 
 });

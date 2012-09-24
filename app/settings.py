@@ -26,6 +26,6 @@ SCRIPTS = {
         'json-rest', 'backbone', 'todos',
         ),
     'canvas': COMMON_SCRIPTS + (
-        'modernizr-touch-only', 'canvas',
+        'bootstrap-colorpicker', 'modernizr-touch-only', 'canvas',
         ),
 }
