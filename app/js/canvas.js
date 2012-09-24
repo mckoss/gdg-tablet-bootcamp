@@ -3,8 +3,9 @@
   9/21/2012
 
   Notebook application using HTML5 Canvas
-  
-  Note 1: Right now, there is only one canvas for every single page.  When the user scrolls
+
+  Note 1: Right now, there is only one html canvas element that displays the data for every single page.
+  When the user scrolls
   to a new page, the canvas is saved, cleared, and the new page data (if any) is put in the canvas.
   Every single page object in the array pages has its own $canvas and ctx properties which are
   references to the same canvas and context.  This is just room for expansion if a page transition
@@ -41,6 +42,7 @@ namespace.module('gdg.canvas', function (exports, require) {
 
     var HEADER_HEIGHT;
     var DEVICE_PIXEL_RATIO = 1.325;  // device pixel to css pixel ratio on a nexus 7
+    //var DEVICE_PIXEL_RATIO = .1;  // device pixel to css pixel ratio on a nexus 7
     var PORTRAIT = [603, 796];  // CSS pixels available in portrait  mode in chrome on a nexus 7
     var LANDSCAPE = [965, 443]; // CSS pixels available in landscape mode in chrome on a nexus 7
 
@@ -149,7 +151,7 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         $(window).on(leaveEventStr, onLeave);
 
-        $(window).on('unload beforeunload', save);
+        //$(window).on('unload beforeunload', save);
 
         if (DEBUG) {
             debugLogs();
@@ -215,17 +217,27 @@ namespace.module('gdg.canvas', function (exports, require) {
         }
 
         iPage = i;
+        updatePageNum();
+    }
+
+    function updatePageNum() {
+        $('#page-number')[0].innerHTML = iPage + 1;
     }
 
     function save() {
         var page, i, saveData;
 
+        $('#save').enable(false);
+        setTimeout(checkSaved, 500);
+
         page = pages[iPage];
         page.data = page.$canvas[0].toDataURL();
 
         for (i = 0; i < pages.length; i++) {
+            console.log('beginning save of page ' + i);
             page = pages[i];
             if (page.clean === true) {
+                console.log('this page is clean, continuing to the next');
                 continue;
             }
 
@@ -234,32 +246,58 @@ namespace.module('gdg.canvas', function (exports, require) {
                 orientation: page.orientation
             });
 
+            page.locked = true;  // lock the page so it cannot be saved twice
+                                 // page is unlocked on ajax callback
+
             if (page.id !== undefined) { // if this page had been loaded from server before
+                console.log('page has an id, doing a put to page.id = ' + page.id);
                 $.ajax({
                     type: 'PUT',
                     url: '/data/canvas/' + page.id,
                     data: saveData,
-                    error: function () {
-                        console.log('ERROR in ajax put call to /data/canvas/' + page.id);
-                    },
-                    success: onSaveSuccess
+                    error: onError.curry(i),
+                    success: onPutSuccess.curry(i)
                 });
             } else {
+                console.log('page id is undefined, posting...');
                 $.ajax({
                     type: 'POST',
                     url: '/data/canvas',
                     data: saveData,
-                    error: function () {
-                        console.log('ERROR in ajax post call to /data/canvas');
-                    },
-                    success: onSaveSuccess
+                    error: onError.curry(i),
+                    success: onPostSuccess.curry(i)
                 });
             }
         }
     }
 
-    function onSaveSuccess() {
-        console.log('saved');
+    function checkSaved() {
+        var allSaved = true;
+        for (var i = 0; i < pages.length; i++) {
+            if (pages[i].locked === true) {
+                allSaved = false;
+            }
+        }
+        if (allSaved === true) {
+            $('#save').enable(true);
+        } else {
+            setTimeout(checkSaved, 500);
+        }
+    }
+
+    function onError(i) {
+        pages[i].locked = false;
+        console.log('PUT/POST error arguments:', arguments);
+    }
+
+    function onPutSuccess(i, savedData) {
+        pages[i].locked = false;
+    }
+
+    function onPostSuccess(i, savedData) {
+        pages[i].locked = false;
+        // set the model id given back from the server, so a PUT is used next time it is saved
+        pages[i].id = savedData.id;
     }
 
     function changeColor() {
