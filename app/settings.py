@@ -24,14 +24,18 @@ App('main',
 
 App('admin',
     scripts=COMMON_SCRIPTS + ('bootstrap', 'image-gui', 'json-forms', 'json-rest', 'showdown'),
-    styles=('desktop', 'bootstrap', 'bootstrap-responsive', 'forms', 'thumbnail-display', 'media-upload', 'admin')
+    styles=('desktop', 'bootstrap', 'bootstrap-responsive', 'forms', 'thumbnail-display', 'media-upload', 'admin'),
+    images=('arrow-back.png', 'arrow-fwd.png', 'delete.png', 'plus-big.png')
     )
 
 App('todos',
     scripts=COMMON_SCRIPTS + ('json-rest', 'backbone', 'todos'),
-    styles=('todos',))
+    styles=('todos',),
+    images=('destroy.png',)
+    )
 
 App('canvas',
     scripts=COMMON_SCRIPTS + ('bootstrap-colorpicker', 'modernizr-touch-only', 'canvas'),
-    styles=('bootstrap', 'colorpicker', 'canvas')
+    styles=('bootstrap', 'colorpicker', 'canvas'),
+    images=('alpha.png','hue.png','saturation.png')
     )
