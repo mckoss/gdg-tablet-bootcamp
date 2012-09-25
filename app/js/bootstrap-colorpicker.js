@@ -150,11 +150,11 @@
             });
         } else if (this.component){
             this.component.on({
-                'mousedown touchstart': $.proxy(this.show, this)
+                'mousedown touchstart': $.proxy(this.toggle, this)
             });
         } else {
             this.element.on({
-                'mousedown touchstart': $.proxy(this.show, this)
+                'mousedown touchstart': $.proxy(this.toggle, this)
             });
         }
         if (format == 'rgba' || format == 'hsla') {
@@ -176,7 +176,18 @@
     Colorpicker.prototype = {
         constructor: Colorpicker,
 
+        toggle: function(e) {
+            console.log('toggle');
+            if (this.shown === true) {
+                this.hide(e);
+            } else {
+                this.show(e);
+            }
+        },
+
         show: function(e) {
+            console.log('  show');
+            this.shown = true;
             this.picker.show();
             this.height = this.component ? this.component.outerHeight() : this.element.outerHeight();
             this.place();
@@ -197,7 +208,7 @@
             });
         },
 
-        update: function(){
+        update: function() {
             this.color = new Color(this.isInput ? this.element.prop('value') : this.element.data('color'));
             this.picker.find('i')
                 .eq(0).css({left: this.color.value.s*100, top: 100 - this.color.value.b*100}).end()
@@ -206,7 +217,9 @@
             this.previewColor();
         },
 
-        hide: function(){
+        hide: function() {
+            console.log('  hide');
+            this.shown = false;
             this.picker.hide();
             $(window).off('resize', this.place);
             if (!this.isInput) {

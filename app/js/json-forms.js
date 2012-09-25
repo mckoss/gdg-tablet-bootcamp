@@ -276,8 +276,6 @@ namespace.module('startpad.json-forms', function(exports, require) {
             result[field.id] = $(field).val();
         }
 
-        imageGUI.getImageFields(result);
-
         return result;
     }
 

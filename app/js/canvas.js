@@ -29,7 +29,6 @@ namespace.module('gdg.canvas', function (exports, require) {
     var downEventStr;  // holds name of events for touch or mouse events
     var moveEventStr;
     var upEventStr;
-    var isTouchDown = false;  // boolean, is there a touchdown
 
     var touchQueue = [];
 
@@ -139,9 +138,10 @@ namespace.module('gdg.canvas', function (exports, require) {
         resetCanvas();
 
         // detect user touch/mouse events
+        console.log('binding ondown to ' + downEventStr);
         $(document).on(downEventStr, onDown);
-        $(document).on(moveEventStr, onMove);
-        $(document).on(upEventStr,   onUp);
+        //$(document).on(moveEventStr, onMove);
+        //$(document).on(upEventStr,   onUp);
 
         $(window).on('resize', onResize);    // detect resize events
         onResize();                          // call resize to initialize some values
@@ -401,32 +401,29 @@ namespace.module('gdg.canvas', function (exports, require) {
         if (event.target.nodeName !== 'CANVAS') {
             return;
         }
-        isTouchDown = true;
-        event.preventDefault();
+        console.log('binding move up and leave to ' + moveEventStr.slice(0,5));
+        $(document).on(moveEventStr, onMove);
+        $(document).on(upEventStr, onUp);
+        $(document).on(leaveEventStr, onLeave);
 
+        event.preventDefault();
         enqueueTouch('down', event);
     }
 
     function onMove(event) {
-        if (isTouchDown === false) {
-            return;
-        }
-
         event.preventDefault();
         enqueueTouch('move', event);
     }
 
     function onUp(event) {
-        if (isTouchDown === false) {
-            return;
-        }
-
+        onLeave();
         enqueueTouch('up', event);
-        isTouchDown = false;
     }
 
-    function onLeave(event) {
-        isTouchDown = false;
+    function onLeave() {
+        $(document).off(moveEventStr, onMove);
+        $(document).off(upEventStr, onUp);
+        $(document).off(leaveEventStr, onLeave);
     }
 
     function enqueueTouch(type, event) {

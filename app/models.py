@@ -39,6 +39,10 @@ class Image(RESTModel, Timestamped):
                   'imageGUI.loadImages(item.puppies, "puppies");',
                   'imageGUI.loadImages(item.desktopBackgrounds, "desktopBackgrounds");',)
 
+    computed = ('item.pictures = imageGUI.stringifyImages("pictures");',
+                'item.cats = imageGUI.stringifyImages("cats");',
+                'item.puppies = imageGUI.stringifyImages("puppies");',
+                'item.desktopBackgrounds = imageGUI.stringifyImages("desktopBackgrounds");',)
 
 class Showdown(RESTModel, Timestamped):
     title = db.StringProperty()
