@@ -14,8 +14,8 @@ models.init()
 
 paths = [
     ('/', PageHandler.params('index.html')),
-    ('/todo', PageHandler.params('todo.html')),
-    ('/canvas', PageHandler.params('canvas.html')),
+    ('/todos', PageHandler.params('todos.html', app='todos')),
+    ('/canvas', PageHandler.params('canvas.html', app='canvas')),
     ]
 
 paths.extend(rest.get_paths())

@@ -1,5 +1,7 @@
 <html {{ manifest|safe }}>
 <head>
+{{ styles|safe }}
+{{ scripts|safe }}
 <!-- Make the viewport as big as the screen and not resizable-this is an app, not a webpage -->
 <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1, maximum-scale=1" />
 <meta name="apple-mobile-web-app-capable" content="yes" />

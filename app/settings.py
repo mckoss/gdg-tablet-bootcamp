@@ -1,4 +1,5 @@
 import os
+from includes import App
 
 SITE_NAME = "GDG Tablet Sample"
 
@@ -17,14 +18,15 @@ if APP_ID is not None:
 
 COMMON_SCRIPTS = ('jquery', 'namespace-plus', 'app-cache', 'underscore',)
 
-SCRIPTS = {
-    'admin': COMMON_SCRIPTS + (
-        'bootstrap', 'image-gui', 'json-forms', 'json-rest', 'showdown'
-        ),
-    'todo': COMMON_SCRIPTS + (
-        'json-rest', 'backbone', 'todos',
-        ),
-    'canvas': COMMON_SCRIPTS + (
-        'bootstrap-colorpicker', 'modernizr-touch-only', 'canvas',
-        ),
-}
+App('admin',
+    scripts=COMMON_SCRIPTS + ('bootstrap', 'image-gui', 'json-forms', 'json-rest', 'showdown'),
+    styles=('desktop', 'bootstrap', 'bootstrap-responsive', 'forms', 'thumbnail-display', 'admin')
+    )
+
+App('todos',
+    scripts=COMMON_SCRIPTS + ('json-rest', 'backbone', 'todos'),
+    styles=('todos',))
+
+App('canvas',
+    scripts=COMMON_SCRIPTS + ('bootstrap-colorpicker', 'modernizr-touch-only', 'canvas')
+    )

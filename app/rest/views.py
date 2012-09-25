@@ -15,8 +15,6 @@ import settings
 import models
 import includes
 
-script_includes = includes.script_includes()
-
 JSON_MIMETYPE = 'application/json'
 JSON_MIMETYPE_CS = JSON_MIMETYPE + '; charset=utf-8'
 
@@ -221,19 +219,18 @@ class ParamHandler(object):
 class PageHandler(ParamHandler, UserHandler):
     """ Request handler for generic pages for webapp views.
     Usage: PageHandler.using("template-name.html"). """
-    def init_params(self, template_path, render_data=None):
-        super(PageHandler, self).__init__()
-
-    def set_params(self, template_name, render_data=None, package=None):
+    # TODO: Get rid of package arg
+    def set_params(self, template_name, package=None, app=None, **kwargs):
         path = ['templates', template_name]
         if package is not None:
             path.insert(0, package)
         self.template_path = os.path.join(*path)
-        self.render_data = render_data or {}
+        self.app_name = app
+        self.render_data = kwargs
 
     def prepare(self):
         username = self.user and self.user.nickname()
-        self.render_data.update(script_includes)
+        self.render_data.update(includes.App.get_app_data(self.app_name))
         self.render_data.update({
             'sign_in': users.create_login_url('/'),
             'sign_out': users.create_logout_url('/'),
@@ -245,10 +242,6 @@ class PageHandler(ParamHandler, UserHandler):
 
     def get(self, *args):
         self.prepare()
-        if settings.DEBUG:
-            import pprint
-            logging.info("Rendering template: %s" % self.template_path)
-            logging.info("render_data:\n%s", pprint.pformat(self.render_data))
         result = template.render(self.template_path, self.render_data)
         self.response.out.write(result)
 
