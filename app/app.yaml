@@ -15,6 +15,9 @@ handlers:
 - url: /js
   static_dir: js
 
+- url: /manifest
+  static_dir: manifest
+
 - url: /rest/css
   static_dir: rest/css
 

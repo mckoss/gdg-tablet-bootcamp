@@ -18,5 +18,6 @@ def script_includes():
         else:
             base_names = settings.SCRIPTS[app]
         includes['%s_scripts' % app] = '\n'.join([SCRIPT_INCLUDE % name for name in base_names])
+        includes['%s_manifest' % app] = 'manifest="/manifest/%s.manifest"' % app if settings.APPCACHE else ''
 
     return includes

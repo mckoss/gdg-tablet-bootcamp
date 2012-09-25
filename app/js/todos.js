@@ -77,7 +77,7 @@ namespace.module('gdg.todos', function (exports, requires) {
     }
 
     function onResize() {
-        
+
     }
 
     function isOverflowing() {

@@ -3,4 +3,3 @@
 *.pyc
 .DS_Store
 env/*
-app/js/*combined*.js

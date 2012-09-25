@@ -241,7 +241,6 @@ class PageHandler(ParamHandler, UserHandler):
             'site_name': settings.SITE_NAME,
             'admin_url': settings.ADMIN_URL,
             'debug': settings.DEBUG,
-            'manifest': settings.MANIFEST,
         })
 
     def get(self, *args):
