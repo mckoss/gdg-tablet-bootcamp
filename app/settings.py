@@ -18,9 +18,13 @@ if APP_ID is not None:
 
 COMMON_SCRIPTS = ('jquery', 'namespace-plus', 'app-cache', 'underscore',)
 
+App('main',
+    styles=('bootstrap', 'bootstrap-responsive', 'desktop')
+    )
+
 App('admin',
     scripts=COMMON_SCRIPTS + ('bootstrap', 'image-gui', 'json-forms', 'json-rest', 'showdown'),
-    styles=('desktop', 'bootstrap', 'bootstrap-responsive', 'forms', 'thumbnail-display', 'admin')
+    styles=('desktop', 'bootstrap', 'bootstrap-responsive', 'forms', 'thumbnail-display', 'media-upload', 'admin')
     )
 
 App('todos',
@@ -28,5 +32,6 @@ App('todos',
     styles=('todos',))
 
 App('canvas',
-    scripts=COMMON_SCRIPTS + ('bootstrap-colorpicker', 'modernizr-touch-only', 'canvas')
+    scripts=COMMON_SCRIPTS + ('bootstrap-colorpicker', 'modernizr-touch-only', 'canvas'),
+    styles=('bootstrap', 'colorpicker', 'canvas')
     )

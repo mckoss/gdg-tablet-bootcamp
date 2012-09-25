@@ -13,7 +13,7 @@ from rest.views import PageHandler
 models.init()
 
 paths = [
-    ('/', PageHandler.params('index.html')),
+    ('/', PageHandler.params('index.html', app='main')),
     ('/todos', PageHandler.params('todos.html', app='todos')),
     ('/canvas', PageHandler.params('canvas.html', app='canvas')),
     ]
