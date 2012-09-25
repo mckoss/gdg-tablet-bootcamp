@@ -8,7 +8,7 @@ namespace.module('startpad.image-gui', function(exports, require) {
     exports.extend({
         'initImageGUI': initImageGUI,
         'loadImages': loadImages,
-        'getImageFields': getImageFields
+        'stringifyImages': stringifyImages
     });
 
 
@@ -39,8 +39,8 @@ namespace.module('startpad.image-gui', function(exports, require) {
           '<a class="thumbnail" data-toggle="modal" href="#<%= image.id %>-modal">' +
             '<img class="thumbnail-image" src="/admin/media/<%= image.name %>?size=thumbnail" />' +
             '<img class="delete icon" src="/images/delete.png" />' +
-            '<img class="back icon" src="/images/arrow_back.png" />' +
-            '<img class="fwd icon" src="/images/arrow_fwd.png" />' +
+            '<img class="back icon" src="/images/arrow-back.png" />' +
+            '<img class="fwd icon" src="/images/arrow-fwd.png" />' +
           '</a>' +
           '<a class=label href="/admin/media/<%= image.name %>?size=large" target="blank">' + 
             '<%= image.name %>' + 
@@ -62,13 +62,14 @@ namespace.module('startpad.image-gui', function(exports, require) {
     // takes \n separated list of image names and the model's attribute name for that list
     function loadImages(imageStr, modelId) {
         var imageGroup = [];
+        var imageNames = [];
         var i;
 
         if (imageStr) {
-            imageGroup = imageStr.split('\n');
+            imageNames = imageStr.split('\n');
         }
-        for (i = 0; i < imageGroup.length; i++) {
-            imageGroup[i] = { name: imageGroup[i], id: modelId + '-' + i, modelId: modelId };
+        for (i = 0; i < imageNames.length; i++) {
+            imageGroup[i] = { name: imageNames[i], id: modelId + '-' + i, modelId: modelId };
         }
 
         images[modelId] = imageGroup;
@@ -157,17 +158,9 @@ namespace.module('startpad.image-gui', function(exports, require) {
         swap(imageGroup, index, index + 1);
     }
 
-    function getImageFields(result) {
-        for (modelId in images) {
-            if (!images.hasOwnProperty(modelId)) {
-                continue;
-            }
-            result[modelId] = stringifyImage(images[modelId]);
-        }
-    }
-
     // runs through the Images object and conatenates their 'names' with  \n
-    function stringifyImage(imageGroup) {
+    function stringifyImages(modelId) {
+        var imageGroup = images[modelId];
         var result = '';
         for (var i = 0; i < imageGroup.length; i++) {
             result += imageGroup[i].name + '\n';
