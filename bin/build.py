@@ -20,7 +20,8 @@ ROOT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APP_PATH = os.path.join(ROOT_PATH, 'app')
 sys.path.insert(0, APP_PATH)
 
-import settings
+import includes
+import applications
 
 # See http://code.google.com/closure/compiler/docs/gettingstarted_api.html
 CLOSURE_API = 'http://closure-compiler.appspot.com/compile'
@@ -61,7 +62,11 @@ def closure_compiler(js_code):
 
 
 def combine_javascript():
-    for app_name, app in settings.App.all_apps.items():
+    if len(includes.App.all_apps) == 0:
+        print "No applications defined - see applications.py."
+        return
+
+    for app_name, app in includes.App.all_apps.items():
         js_dir = os.path.join(APP_PATH, 'js')
         css_dir = os.path.join(APP_PATH, 'css')
 
