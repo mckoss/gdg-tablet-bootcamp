@@ -1,10 +1,117 @@
-{% extends "desktop_base.html" %}
+{% extends "admin_base.html" %}
 
 {% block head_extra %}
-<title>{{ site_name }} Admin</title>
-<link rel="stylesheet" type="text/css" href="/css/admin.css" />
+<link rel="stylesheet" type="text/css" href="/css/forms.css" />
+<link rel="stylesheet" type="text/css" href="/css/thumbnail-display.css" />
+
+<link rel="stylesheet" type="text/css" href="/css/media-upload.css" />
+
+<script>
+  $(document).ready(namespace.startpad.json_forms.adminInit);
+</script>
+
+<!--
+<script>
+  $(document).ready(namespace.startpad.json_forms.onItemPage);
+</script>
+<script>
+  $(document).ready(namespace.startpad.json_forms.onListPage);
+</script>
+<script>
+  $(document).ready(namespace.startpad.json_forms.onFormsPage);
+</script>
+<script>
+  $(document).ready(namespace.startpad.json_forms.onMediaPage);
+</script>
+-->
 {% endblock %}
 
 {% block content %}
-<p>This site is for the use of {{ site_name }} administrators only.</p>
+
+<!-- base -->
+<script type="text/template" id="base-template">
+  <p>This site is for the use of GDG Tablet Sample administrators only.</p>
+</script>
+
+<!-- item form -->
+<script type="text/template" id="item-form-template">
+  <div class="span8">
+
+    <fieldset>
+      <legend id="item-form-legend"></legend>
+
+      <div id="item-form-body">
+      </div>
+    </fieldset>
+
+    <button id="_save" class="btn btn-primary">Save</button>
+    <button id="_delete" class="btn">Delete</button>
+    <!--  <button id="_save" class="btn">Find</button>  -->
+  </div>
+</script>
+
+<!-- list form -->
+<script type="text/template" id="list-form-template">
+  <h1 id="list-heading">Page List</h1>
+  <table>
+    <thead>
+      <tr><th>ID</th><th>Title</th></tr>
+    </thead>
+    <tbody id="list-table-body">
+    </tbody>
+  </table>
+
+  <input type=button id="_new" value="New" />
+</script>
+
+<script type="text/template" id="model-row-template">
+  <tr>
+    <td><%- id %>.</td><td><a href="#forms/<%- modelName %>/<%- id %>"><%- title %></td>
+  </tr>
+</script>
+
+<!-- main form -->
+<script type="text/template" id="main-form-template">
+  <h1>GDG-Tablet Database Home</h1>
+  <ul id="schema-links-body">
+    <% _.each(modelNames, function(model) { %>
+      <li><a href="#forms/<%= model %>"><%= model %></a></li>
+    <% }); %>
+  </ul>
+</script>
+
+<!-- media upload -->
+<script type="text/template" id="media-upload-template">
+  <h2>Upload an Image.</h2>
+  <div id="upload-form-container">
+    <form action="/admin/image-upload" enctype="multipart/form-data" method="post">
+      <input type="file" name="img"/>
+      <input type="submit" value="Upload" />
+    </form>
+  </div>
+
+  <h2>Current Images</h2>
+  <div id="all-thumbnails">
+
+    <% _.each(imageNames, function(imageName) { %>
+    <div class="thumbnail-container">
+      <a class="thumbnail" data-toggle="modal" href="#<%= imageName %>">
+        <img class="thumbnail-image" src="/media/<%= imageName %>?size=thumbnail" />
+      </a>
+      <a class="label" target="blank" href="/media/<%= imageName %>?size=large"><%= imageName %></a>
+    </div>
+
+    <div class="modal hide" id="<%= imageName %>">
+      <div class="modal-body" id="<%= imageName %>-body">
+        <a href="/media/<%= imageName %>?size=large" target="blank"></a>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn" data-dismiss="modal">Close</a>
+      </div>
+    </div>
+    <% }); %>
+
+  </div>
+</script>
+
 {% endblock %}

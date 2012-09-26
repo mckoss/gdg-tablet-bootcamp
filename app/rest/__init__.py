@@ -16,14 +16,15 @@ def get_paths():
         ('/data', views.SchemaHandler),
 
         # Admin views
-        ('/admin', using('admin.html')),
-        ('/admin/help', using('help.html')),
-        ('/admin/forms', using('main-form.html',
-                               {'models': models.rest_models.keys()})),
-        ('/admin/forms/(\w+)', using('list-form.html')),
-        ('/admin/forms/(\w+)/(\d+)', using('item-form.html')),
+        #('/admin', using('admin.html')),
+        #('/admin/help', using('help.html')),
+        #('/admin/forms', using('main-form.html',
+        #                       {'models': models.rest_models.keys()})),
+        #('/admin/forms/(\w+)', using('list-form.html')),
+        #('/admin/forms/(\w+)/(\d+)', using('item-form.html')),
 
-        ('/admin/media', MediaListHandler.params('media-upload.html', package='rest')),
-        ('/admin/media/([a-zA-Z0-9_\-\.]+)', views.MediaHandler),
+        ('/media', MediaListHandler),
+        #('/media', MediaListHandler.params('media-upload.html', package='rest')),
+        ('/media/([a-zA-Z0-9_\-\.]+)', views.MediaHandler),
         ('/admin/image-upload', views.UploadHandler),
         ]
