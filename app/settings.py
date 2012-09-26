@@ -2,10 +2,10 @@ import os
 
 SITE_NAME = "GDG Tablet Sample"
 
-DEBUG = True
-COMBINED = False
-APPCACHE = False
-MINIFIED = False
+DEBUG = False
+COMBINED = True
+APPCACHE = True
+MINIFIED = True
 
 # App Engine specific variables.
 APP_ID = os.environ.get('APPLICATION_ID')
