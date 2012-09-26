@@ -5,10 +5,15 @@ body {
   margin: 0;
   text-align: center;
 }
-canvas {
+#canvas-holder {
+  background-color: #ddd;
   display: block;
   cursor: pointer;
   margin: 0 auto;
+}
+canvas {
+  width: 100%;
+  height: 100%;
 }
 #control {
 -webkit-touch-callout: none;

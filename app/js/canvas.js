@@ -29,29 +29,23 @@ namespace.module('gdg.canvas', function (exports, require) {
     var downEventStr;  // holds name of events for touch or mouse events
     var moveEventStr;
     var upEventStr;
+    var leaveEventStr;
 
     var touchQueue = [];
 
-    var hiddenCanvasUID = 0;
-
-    var hiddenCanvas = _.template(
-        '<canvas id=hidden-canvas-<%= id %> width=<%= width %> height=<%= height %>' +
-            ' style="display: none;"></canvas>'
-    );
-
     var HEADER_HEIGHT;
     var DEVICE_PIXEL_RATIO = 1.325;  // device pixel to css pixel ratio on a nexus 7
-    //var DEVICE_PIXEL_RATIO = .1;  // device pixel to css pixel ratio on a nexus 7
     var PORTRAIT = [603, 796];  // CSS pixels available in portrait  mode in chrome on a nexus 7
     var LANDSCAPE = [965, 443]; // CSS pixels available in landscape mode in chrome on a nexus 7
 
     var pages = [];
     var iPage;
 
+    var $globalCanvas;
+    var globalCtx;
+
     function init() {
         var orientation;
-        var $canvas;
-        var ctx;
 
         isTouchDevice = Modernizr.touch;
 
@@ -70,6 +64,7 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         $.ajax({
             url: '/data/canvas',
+            error: bindEvents,
             success: bindEvents,
             error: function () {
                 console.log('ERROR in ajax get call to /data/canvas');
@@ -78,25 +73,31 @@ namespace.module('gdg.canvas', function (exports, require) {
         });
     }
 
-    function bindEvents(results, resultEventType, event) {
+    function bindEvents(results, message) {
         var size, orientation, result;
+
+        if (message === 'error') {
+            results = [];
+        }
 
         // set change and keyup events on the color and line width inputs
         //$('#color').on('change keyup', changeColor);
         $('#line-width').on('change keyup', changeLineWidth);
 
-        $('#next').on(downEventStr, function() { changePage(iPage + 1); });
-        $('#prev').on(downEventStr, function() { changePage(iPage - 1); });
-        $('#save').on(downEventStr, save);
+        $('#next').on(downEventStr, function() {
+            changePage({ i: iPage + 1, save: true });
+        });
+        $('#prev').on(downEventStr, function() {
+            changePage({ i: iPage - 1, save: true });
+        });
 
         $('.color').colorpicker().on('changeColor', changeColor);
-        
 
         // grab the canvas from the dom, note it is jQuery wrapped
-        $canvas = $('#c0');
+        $globalCanvas = $('#main');
 
         // get the drawing context from the canvas
-        ctx = $canvas[0].getContext('2d');
+        globalCtx = $globalCanvas[0].getContext('2d');
 
         iPage = 0;
         if (results.length === 0) {  // if no stored canvases for this user
@@ -105,12 +106,12 @@ namespace.module('gdg.canvas', function (exports, require) {
             size = getCanvasSize(orientation);
 
             pages[iPage] = {
-                $canvas: $canvas, // see note 1 at top
-                ctx: ctx,
+                $canvas: $globalCanvas, // see note 1 at top
+                ctx: globalCtx,
                 size: size,
                 orientation: orientation,
                 clean: true,
-                scale: undefined            // scale set in onResize / scaleCanvas
+                empty: true
             };
         } else {
             // if there are stored canvases for the user, initialize them
@@ -122,39 +123,47 @@ namespace.module('gdg.canvas', function (exports, require) {
                 size = getCanvasSize(result.orientation);
 
                 pages[i] = {
-                    $canvas: $canvas, // see note 1 at top
-                    ctx: ctx,
+                    $canvas: $globalCanvas, // see note 1 at top
+                    ctx: globalCtx,
                     size: size,
                     orientation: result.orientation,
                     data: result.data,
                     id: result.id,
-                    clean: false,
-                    scale: undefined            // scale set in onResize / scaleCanvas
+                    clean: true,
+                    emtpy: false
                 };
             }
-            changePage(results.length - 1, true);
+            changePage({ i: results.length - 1, save: false, force: true });
         }
 
         resetCanvas();
 
-        // detect user touch/mouse events
-        console.log('binding ondown to ' + downEventStr);
+        // detect user touch/mouse down events. move,up,leave dynamically added/removed
         $(document).on(downEventStr, onDown);
-        //$(document).on(moveEventStr, onMove);
-        //$(document).on(upEventStr,   onUp);
 
         $(window).on('resize', onResize);    // detect resize events
         onResize();                          // call resize to initialize some values
 
         $(window).on(leaveEventStr, onLeave);
 
-        //$(window).on('unload beforeunload', save);
+        //$(window).on('beforeunload', save);
+
+        setInterval(poll, 5000);
 
         if (DEBUG) {
             debugLogs();
         }
 
         requestAnimationFrame(render);       // render the first frame, starting a chain of renders
+    }
+
+    function poll() {
+        console.log('poll()');
+        for (var i = 0; i < pages.length; i++) {
+            if (pages[i].clean === false) {
+                savePage(i);
+            }
+        }
     }
 
     function getCanvasSize(orientation) {
@@ -174,28 +183,38 @@ namespace.module('gdg.canvas', function (exports, require) {
         return size;
     }
 
-    function changePage(i, noSave) {
-        if (i < 0 || i > pages.length ||
-            (pages[iPage].clean === true && i === pages.length)) {
-            return;
+    function changePage(args) {
+        console.log('changing page', args);
+        var i = args.i,
+                save = args.save,
+                force = args.force;
+
+        // if not forcing, check to see if this changePage is unnecessary/unwanted
+        if (!force) {
+            if (i < 0 || i > pages.length ||
+                (pages[iPage].empty === true && i === pages.length)) {
+                return;
+            }
         }
         console.log('changing page to page # ' + (i + 1));
 
         var page = pages[iPage];
 
-        if (!noSave) {
+        if (save) {
             page.data = page.$canvas[0].toDataURL();
+            savePage(iPage);
         }
         if (i === pages.length) {
             // HACK since we are only using one canvas, might as well be
             // a global var, so take the one and only canvas and ctx vars from pages[0]
             var orientation = getOrientation();
             pages[i] = {
-                $canvas: pages[0].$canvas,
-                ctx: pages[0].ctx,
+                $canvas: $globalCanvas,
+                ctx: globalCtx,
                 size: getCanvasSize(orientation),
                 orientation: orientation,
-                clean: true
+                clean: true,
+                empty: true
             };
         }
 
@@ -215,6 +234,44 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         iPage = i;
         updatePageNum();
+    }
+
+    function savePage(i) {
+        console.log('saving page ' + i);
+
+        var page = pages[i];
+        if (page.clean === true) {
+            return;
+        }
+
+        var saveData = JSON.stringify({
+            data: page.data,
+            orientation: page.orientation
+        });
+
+        page.locked = true;  // lock the page so it cannot be saved twice
+                             // page is unlocked on ajax callback
+
+        if (page.id !== undefined) { // if this page had been loaded from server before
+            console.log('page has an id, doing a put to page.id = ' + page.id);
+            $.ajax({
+                type: 'PUT',
+                url: '/data/canvas/' + page.id,
+                data: saveData,
+                error: onError.curry(i),
+                success: onPutSuccess.curry(i)
+            });
+        } else {
+            console.log('page id is undefined, posting...');
+            $.ajax({
+                type: 'POST',
+                url: '/data/canvas',
+                data: saveData,
+                error: onError.curry(i),
+                success: onPostSuccess.curry(i)
+            });
+        }
+        pages[i].clean = true;
     }
 
     function updatePageNum() {
@@ -265,6 +322,7 @@ namespace.module('gdg.canvas', function (exports, require) {
                     success: onPostSuccess.curry(i)
                 });
             }
+            pages[i].clean = true;
         }
     }
 
@@ -284,6 +342,7 @@ namespace.module('gdg.canvas', function (exports, require) {
 
     function onError(i) {
         pages[i].locked = false;
+        alert('Unable to save page number ' + i + '. Please try again later');
         console.log('PUT/POST error arguments:', arguments);
     }
 
@@ -314,18 +373,15 @@ namespace.module('gdg.canvas', function (exports, require) {
     }
 
     function resetCanvas(page) {
-        var canvas, ctx, size;
         if (page === undefined) {
             page = pages[iPage];
         }
-        canvas = page.$canvas[0];
-        ctx = page.ctx;
-        size = page.size;
+        var canvas = page.$canvas[0],
+            ctx = page.ctx,
+            size = page.size;
 
         canvas.width = size[0];
         canvas.height = size[1];
-        ctx.fillStyle = '#ddd';
-        ctx.fillRect(0, 0, size[0], size[1]);
 
         // set the canvas line width and stroke style
         ctx.lineWidth = $('#line-width').val();
@@ -347,7 +403,7 @@ namespace.module('gdg.canvas', function (exports, require) {
             scale = space[0] / size[0];
             marginTop = (space[1] - size[1] * scale) / 2;
         }
-        page.$canvas.css({
+        $('#canvas-holder').css({
             'margin-top': marginTop,
             'width': size[0] * scale,
             'height': size[1] * scale
@@ -375,6 +431,7 @@ namespace.module('gdg.canvas', function (exports, require) {
 
             if (pages[iPage].clean === true) {
                 pages[iPage].clean = false;
+                pages[iPage].empty = false;
             }
 
             if (touch.type === 'down') {
@@ -471,8 +528,8 @@ namespace.module('gdg.canvas', function (exports, require) {
     function debugLogs() {
         setTimeout(function () {
             alert('[' + window.innerWidth + ', ' + window.innerHeight + '], pixelRatio:' +
-                  window.devicePixelRatio + ', ' + $canvas.css('width') + ', ' + $canvas.css('height') +
-                  ', ' + HEADER_HEIGHT + ', ' + $canvas[0].offsetTop);
+                  window.devicePixelRatio + ', ' + $globalCanvas.css('width') + ', ' + $globalCanvas.css('height') +
+                  ', ' + HEADER_HEIGHT + ', ' + $globalCanvas[0].offsetTop);
         }, 2000);
 
         /*var everyMouseTouchEvent = 'mousedown mouseup mouseover mousemove mouseleave ' + 
@@ -484,8 +541,8 @@ namespace.module('gdg.canvas', function (exports, require) {
         /*
         setTimeout(function () {
             alert('[' + window.innerWidth + ', ' + window.innerHeight + '], pixelRatio:' +
-                  window.devicePixelRatio + ', ' + $canvas.css('width') + ', ' + $canvas.css('height') +
-                  ', ' + HEADER_HEIGHT + ', ' + $canvas[0].offsetTop);
+                  window.devicePixelRatio + ', ' + $globalCanvas.css('width') + ', ' + $globalCanvas.css('height') +
+                  ', ' + HEADER_HEIGHT + ', ' + $globalCanvas[0].offsetTop);
         }, 3000);
         
         setTimeout(function () {
