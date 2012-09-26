@@ -1,20 +1,17 @@
 {% extends "admin_base.html" %}
-
-{% block head_extra %}
-<title>GDG Sample Apps</title>
-{% endblock %}
+{% block title %}GDG Sample Apps{% endblock %}
 
 {% block content %}
 <h1>GDG Sample Applications</h1>
 
 <ul>
-<li><a href="/todos">ToDos - Bootstrap sample</a></li>
-<ul>
-  <li><a href="/data/todo">JSON-Data</a></li>
-  <li><a href="/admin/forms/todo">Admin Interface</a></li>
-</ul>
-<li><a href="/canvas">Canvas - Touch/Click Event Handling Sample</a></li>
-<li><a href="/admin">Admin Data Console</a></li>
-<li><a href="/data">All JSON Schema</a></li>
+  <li><a href="/todos">ToDos - Bootstrap sample</a></li>
+  <ul>
+    <li><a href="/data/todo">JSON-Data</a></li>
+    <li><a href="/admin/forms/todo">Admin Interface</a></li>
+  </ul>
+  <li><a href="/canvas">Canvas - Touch/Click Event Handling Sample</a></li>
+  <li><a href="/admin">Admin Data Console</a></li>
+  <li><a href="/data">All JSON Schema</a></li>
 </ul>
 {% endblock %}

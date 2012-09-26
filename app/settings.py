@@ -1,5 +1,8 @@
 import os
 
+# This users (as well as appengine-admins) will have read/write access to all data.
+admin_emails = ('mckoss@gmail.com',)
+
 SITE_NAME = "GDG Tablet Sample"
 
 DEPLOY = False
