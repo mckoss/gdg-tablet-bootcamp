@@ -175,7 +175,7 @@ namespace.module('gdg.canvas', function (exports, require) {
     }
 
     function changePage(i, noSave) {
-        if (i < 0 || i > pages.length || i === iPage ||
+        if (i < 0 || i > pages.length ||
             (pages[iPage].clean === true && i === pages.length)) {
             return;
         }
