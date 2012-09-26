@@ -30,8 +30,9 @@ class App(object):
     def get_app_data(cls, app_name):
         data = {'scripts': '',
                 'styles': '',
-                'manifest': 'manifest="/manifest/%s.appcache"' % app_name,
+                'manifest': '',
                 }
+
         if app_name is None:
             logging.warning("No application defined in template.")
             return data
@@ -40,6 +41,9 @@ class App(object):
             logging.error("No such app: %s.", app_name)
 
         app = cls.all_apps[app_name]
+
+        if settings.APPCACHE:
+            data['manifest'] = 'manifest="/manifest/%s.appcache"' % app_name
 
         if len(app.scripts) > 0:
             if settings.COMBINED:
