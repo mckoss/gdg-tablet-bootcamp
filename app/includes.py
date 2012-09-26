@@ -8,8 +8,6 @@ import logging
 import settings
 from datetime import datetime
 
-from google.appengine.ext import webapp
-
 APP_PATH = os.path.dirname(os.path.abspath(__file__))
 
 SCRIPT_INCLUDE = '<script type="text/javascript" src="/js/%s.js"></script>'
@@ -45,7 +43,7 @@ class App(object):
 
         if len(app.scripts) > 0:
             if settings.COMBINED:
-                base_names = ['%s-combined' % app_name]
+                base_names = ['combined/%s%s' % (app_name, '-min' if settings.MINIFIED else '')]
             else:
                 base_names = app.scripts
             data['scripts'] = '\n'.join([SCRIPT_INCLUDE % name for name in base_names])
@@ -63,8 +61,11 @@ class App(object):
 
         manifest += "\n\nCACHE:\n"
 
-        for basename in self.scripts:
-            manifest += "/js/%s.js\n" % basename
+        if settings.COMBINED:
+            manifest += "/js/combined/%s%s.js\n" % (self.name, '-min' if settings.MINIFIED else '')
+        else:
+            for basename in self.scripts:
+                manifest += "/js/%s.js\n" % basename
 
         for basename in self.styles:
             manifest += "/css/%s.css\n" % basename
@@ -79,19 +80,22 @@ class App(object):
 
     @classmethod
     def get_paths(cls):
+        from google.appengine.ext import webapp
+
+        class ManifestHandler(webapp.RequestHandler):
+            def get(self, app_name):
+                app = App.all_apps.get(app_name)
+                if app is None:
+                    self.error(404)
+                    self.response.out.write("No such application: %s" % app_name)
+                    return
+
+                self.response.headers['Content-Type'] = 'test/cache-manifest'
+                self.response.out.write(app.manifest)
+
         return [('/manifest/(\w+).appcache', ManifestHandler)]
 
 
-class ManifestHandler(webapp.RequestHandler):
-    def get(self, app_name):
-        app = App.all_apps.get(app_name)
-        if app is None:
-            self.error(404)
-            self.response.out.write("No such application: %s" % app_name)
-            return
-
-        self.response.headers['Content-Type'] = 'test/cache-manifest'
-        self.response.out.write(app.manifest)
 
 
 def update_manifest(explicit=False):
