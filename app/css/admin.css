@@ -2,6 +2,3 @@ body {
   padding-top: 60px;
   padding-bottom: 40px;
 }
-
-body.signed-in .if-not-signed-in { display: none; }
-body:not(.signed-in) .if-signed-in { display: none; }
