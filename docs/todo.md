@@ -5,7 +5,7 @@
   - showdown
   - image list
 - Allow deletion of image.
-- Link to AppEngine admin from our admin.
+X Link to AppEngine admin from our admin.
 - Factor rest from admin.
 - Form styles side-by-side (bootstrap class?)
 - Checkbox style for boolean.
