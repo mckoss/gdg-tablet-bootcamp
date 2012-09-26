@@ -262,12 +262,8 @@ class PageHandler(ParamHandler, UserHandler):
         username = self.user and self.user.nickname()
         self.render_data.update(includes.App.get_app_data(self.app_name))
         self.render_data.update({
-            'sign_in': users.create_login_url(self.request.url),
-            'sign_out': users.create_logout_url(self.request.url),
-            'username': username or '',
             'site_name': settings.SITE_NAME,
             'admin_url': settings.ADMIN_URL,
-            'debug': settings.DEBUG,
         })
 
     def get(self, *args):

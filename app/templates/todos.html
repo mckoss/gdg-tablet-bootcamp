@@ -1,10 +1,5 @@
 {% extends "base.html" %}
-
-{% block head %}
-
-<title>Backbone Demo: Todos</title>
-
-{% endblock %}
+{% block title %}Backbone Demo: Todos{% endblock %}
 
 {% block body %}
 
@@ -12,11 +7,8 @@
 
 <div id="todoapp">
   <div class="menu">
-    {% if username %}
-    Welcome, {{ username }} | <a href="{{ sign_out|safe }}">Sign Out</a>
-    {% else %}
-    <a href="{{ sign_in|safe }}">Sign In</a>
-    {% endif %}
+    <span class="if-signed-in">Welcome, <span id="username"></span> | <a id="sign-out">Sign Out</a></span>
+    <span class="if-not-signed-in"><a id="sign-in">Sign In</a></span>
   </div>
 
   <div class="title">
