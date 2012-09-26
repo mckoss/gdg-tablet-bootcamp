@@ -49,7 +49,10 @@ class App(object):
             data['scripts'] = '\n'.join([SCRIPT_INCLUDE % name for name in base_names])
 
         if len(app.styles) > 0:
-            data['styles'] = '\n'.join([STYLE_INCLUDE % name for name in app.styles])
+            if settings.COMBINED:
+                data['styles'] = STYLE_INCLUDE % ('combined/' + app_name)
+            else:
+                data['styles'] = '\n'.join([STYLE_INCLUDE % name for name in app.styles])
 
         data['manifest'] = 'manifest="/manifest/%s.appcache"' % app_name if settings.APPCACHE else ''
         return data
@@ -67,13 +70,16 @@ class App(object):
             for basename in self.scripts:
                 manifest += "/js/%s.js\n" % basename
 
-        for basename in self.styles:
-            manifest += "/css/%s.css\n" % basename
+        if settings.COMBINED:
+            manifest += "/css/combined/%s.css\n" % self.name
+        else:
+            for basename in self.styles:
+                manifest += "/css/%s.css\n" % basename
 
         for fullname in self.images:
             manifest += '/images/%s\n' % fullname
 
-        manifest += "\nNETWORK:\n/data\n/data/*\n"
+        manifest += "\nNETWORK:\n*\n"
 
         self.manifest = manifest
         logging.info(manifest)

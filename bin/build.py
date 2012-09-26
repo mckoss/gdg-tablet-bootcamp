@@ -63,6 +63,7 @@ def closure_compiler(js_code):
 def combine_javascript():
     for app_name, app in settings.App.all_apps.items():
         js_dir = os.path.join(APP_PATH, 'js')
+        css_dir = os.path.join(APP_PATH, 'css')
 
         js_code = ''
         for basename in app.scripts:
@@ -78,6 +79,16 @@ def combine_javascript():
         with open(os.path.join(js_dir, 'combined', '%s-min.js' % app_name), 'w') as combined_min_file:
             minified = closure_compiler(js_code)
             combined_min_file.write(minified)
+
+        css_code = ''
+        for basename in app.styles:
+            with open(os.path.join(css_dir, basename + '.css')) as css_file:
+                css_code += "\n/* %s */\n" % basename
+                css_code += css_file.read()
+
+        print "Combining files into %s.css." % app_name
+        with open(os.path.join(css_dir, 'combined', '%s.css' % app_name), 'w') as combined_file:
+            combined_file.write(css_code)
 
 
 def main():

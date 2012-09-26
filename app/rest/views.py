@@ -108,7 +108,6 @@ class ListHandler(UserHandler, JSONHandler):
                 filter_query_by_value(query, model, property_name, value)
 
         results = query.fetch(1000)
-        logging.info("Found [%i] %s's" % (len(results), model_name))
         items = [item.get_dict() for item in results]
         self.json_response(items, cache=should_cache)
 

@@ -1,6 +1,6 @@
 namespace.module('startpad.appcache', function (exports, require) {
     /* Setup event listener when module is loaded. */
-    handleAppCache()
+    $(document).ready(handleAppCache)
 
     function handleAppCache() {
         if (typeof applicationCache == 'undefined') {
