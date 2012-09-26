@@ -16,10 +16,10 @@
       <div class="nav-collapse">
         <ul class="nav">
           <li><a href="/">Main Site</a></li>
-          <li><a href="/admin/forms">Database</a></li>
-          <li><a href="/admin/media">Media</a></li>
+          <li><a href="/admin#forms">Database</a></li>
+          <li><a href="/admin#media">Media</a></li>
           <li><a href="{{ admin_url }}">Console</a></li>
-          <li><a href="/admin/help">Help</a></li>
+          <li><a href="/admin#help">Help</a></li>
         </ul>
         {% if username %}
         <p class="navbar-text pull-right">Welcome, {{ username }}
@@ -33,8 +33,10 @@
   </div>
 </div>
 
-<div class="container-fluid">
-{% block content %} {% endblock %}
+<div id="content" class="container-fluid">
+  {% block content %}
+
+  {% endblock %}
 </div>
 
 {% endblock %}

@@ -2,14 +2,15 @@ namespace.module('startpad.json-forms', function(exports, require) {
     var jsonRest = require('startpad.json-rest');
     var imageGUI = require('startpad.image-gui');
 
-    var types = require('org.startpad.types');  // FROM SC
+    var types = require('org.startpad.types');
     require('org.startpad.funcs').patch();
 
     exports.extend({
-        'onFormsPage': onFormsPage,
+        'adminInit': adminInit
+        /*'onFormsPage': onFormsPage,
         'onListPage': onListPage,
         'onItemPage': onItemPage,
-        'onMediaPage': onMediaPage
+        'onMediaPage': onMediaPage*/
     });
 
     var markdown;
@@ -17,8 +18,6 @@ namespace.module('startpad.json-forms', function(exports, require) {
     var pageInfo;
     var currentItem;
 
-    // from SC, there is a less complete version of this declared in callback from
-    //   onItemPage(), so this is added and that is removed
     var controlTemplates = {
         'text': _.template(
             '<label for="<%- name %>"><%- name %>:</label>' +
@@ -40,8 +39,8 @@ namespace.module('startpad.json-forms', function(exports, require) {
             '<input type="text" name="<%- name %>" id="<%- name %>" ' +
             '    value="<%- value.id %>"/>' +
             '<div>' +
-            '  Current <a href="/admin/forms/<%- property.type %>"><%- property.type %></a>: ' +
-            '<a href="/admin/forms/<%- property.type %>/<%- value.id %>">' +
+            '  Current <a href="/admin#forms/<%- property.type %>"><%- property.type %></a>: ' +
+            '<a href="/admin#forms/<%- property.type %>/<%- value.id %>">' +
             '<%- value.name %></a>' +
             '</div>')
     };
@@ -49,26 +48,93 @@ namespace.module('startpad.json-forms', function(exports, require) {
     var mediaLoaded = {};
 
     var mediaPageImageTemplate = _.template(
-        '<img class="modal-image" src="/admin/media/<%= id %>?size=mobile" />');
+        '<img class="modal-image" src="/media/<%= id %>?size=mobile" />');
 
+    var itemFormTemplate;
+    var listFormTemplate;
+    var mainFormTemplate;
+    var mediaUploadTemplate;  // needs array of string image names
+    var baseTemplate;
 
-    function onFormsPage() {
-        if (!ensureInit(onFormsPage)) {
+    var modelRowTemplate;
+
+    var pageHash;
+    var currentPage;
+
+    function adminInit() {
+        if (!ensureInit(adminInit)) {
             return;
         }
 
-        var schemaTemplate = _.template($('#schema-links-template').html());
-        var linksHTML = ""
-        for (model in schema) {
-            linksHTML += schemaTemplate(schema);
-        }
-        $('#schema-links-body').html(linksHTML);
+        setInterval(poll, 500);
+
+        itemFormTemplate = _.template($('#item-form-template').html());
+        listFormTemplate = _.template($('#list-form-template').html());
+        mainFormTemplate = _.template($('#main-form-template').html());
+        mediaUploadTemplate = _.template($('#media-upload-template').html());
+        baseTemplate = _.template($('#base-template').html());
+        
+        modelRowTemplate = _.template($('#model-row-template').html());
+
+        poll();
     }
 
-    function onListPage() {
-        if (!ensureInit(onListPage)) {
+    function poll() {
+        var newHash = location.hash.slice(1);
+        if (pageHash === newHash) {
             return;
         }
+        pageHash = newHash;
+
+        var components = pageHash.split('/');
+
+        if (pageHash.length === 0) {
+            onBasePage();
+        } else if (components[0] === 'forms') {
+            if (!components[1]) {
+                onFormsPage();
+                return;
+            }
+            pageInfo.model = components[1];
+            if (!components[2]) {
+                onListPage(components[1]);
+                return;
+            }
+            pageInfo.id = components[2];
+            onItemPage(components);
+        } else if (components[0] === 'media') {
+            onMediaPage();
+        }
+    }
+
+    function onBasePage() {
+        if (currentPage === 'base') {
+            return;
+        }
+        currentPage = 'base';
+        $('#content').empty().append(baseTemplate());
+    }
+
+    function onFormsPage() {
+        if (currentPage === 'forms') {
+            return;
+        }
+        currentPage = 'forms';
+
+        var modelNames = [];
+        for (var modelName in schema) {
+            modelNames[modelNames.length] = modelName
+        }
+        $('#content').empty().append(mainFormTemplate({modelNames: modelNames}));
+    }
+
+    function onListPage(model) {
+        if (currentPage === 'list') {
+            return;
+        }
+        currentPage = 'list';
+
+        $('#content').empty().append(listFormTemplate());
 
         var headingText = pageInfo.model + ' List.';
         headingText = headingText[0].toUpperCase() + headingText.slice(1);
@@ -76,12 +142,14 @@ namespace.module('startpad.json-forms', function(exports, require) {
         $('#list-heading').text(headingText);
         $('#_new').click(onNew);
 
-        var modelRowTemplate = _.template($('#model-row-template').html());
         $.ajax({
             // Override default caching since the list is likely to change frequently
             // while editing.
             url: '/data/' + pageInfo.model,
             success: function (result) {
+                if (currentPage !== 'list') {
+                    return;
+                }
                 var listHTML = ""
                 for (var i = 0; i < result.length; i++) {
                     var item = result[i];
@@ -103,20 +171,32 @@ namespace.module('startpad.json-forms', function(exports, require) {
     }
 
     function onMediaPage() {
-        if (!ensureInit(onMediaPage)) {
+        if (currentPage === 'media') {
             return;
         }
+        currentPage = 'media';
 
-        var $images = $('.thumbnail').find('img');
-        $images.one('load', onImageLoad).each(function () {
-            if (this.complete) $(this).load();
+        $.ajax({
+            // Override default caching since the list is likely to change frequently
+            // while editing.
+            url: '/media',
+            success: function (result) {
+                if (currentPage !== 'media') {
+                    return;
+                }
+                $('#content').empty().append(mediaUploadTemplate({imageNames: result}));
+                var $images = $('.thumbnail').find('img');
+                $images.one('load', onImageLoad).each(function () {
+                    if (this.complete) $(this).load();
+                });
+
+                var $modals = $('.modal');
+                for (var i = 0; i < $modals.length; i++) {
+                    mediaLoaded[$modals[i].id] = 'not loaded';
+                    $($modals[i]).on('show', ensureModalLoaded.curry($modals[i].id));
+                }
+            }
         });
-
-        var $modals = $('.modal');
-        for (var i = 0; i < $modals.length; i++) {
-            mediaLoaded[$modals[i].id] = 'not loaded';
-            $($modals[i]).on('show', ensureModalLoaded.curry($modals[i].id));
-        }
     }
 
     function onImageLoad(event) {
@@ -137,9 +217,12 @@ namespace.module('startpad.json-forms', function(exports, require) {
     }
 
     function onItemPage() {
-        if (!ensureInit(onItemPage)) {
+        /*if (currentPage === 'item') {
             return;
-        }
+        }*/
+        currentPage = 'item';
+
+        $('#content').empty().append(itemFormTemplate());
 
         $('#item-form-legend').text(pageInfo.model + ' item #' + pageInfo.id);
 
@@ -230,7 +313,7 @@ namespace.module('startpad.json-forms', function(exports, require) {
             },
             success: function (result, textStatus) {
                 console.log("saved");
-                window.location.href = '/admin/forms/' + pageInfo.model;
+                window.location.href = '/admin#forms/' + pageInfo.model;
             }
         });
     }
@@ -244,7 +327,7 @@ namespace.module('startpad.json-forms', function(exports, require) {
                     alert(textStatus);
                 },
                 success: function (result, textStatus) {
-                    window.location.href = '/admin/forms/' + pageInfo.model;
+                    window.location.href = '/admin#forms/' + pageInfo.model;
                 }
             });
         }
@@ -259,7 +342,7 @@ namespace.module('startpad.json-forms', function(exports, require) {
                 alert(textStatus);
             },
             success: function (result, textStatus) {
-                window.location.href = '/admin/forms/' + pageInfo.model;
+                window.location.href = '/admin#forms/' + pageInfo.model;
             }
         });
     }

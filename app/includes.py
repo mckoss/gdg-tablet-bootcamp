@@ -30,7 +30,7 @@ class App(object):
     def get_app_data(cls, app_name):
         data = {'scripts': '',
                 'styles': '',
-                'manifest': '',
+                'manifest': 'manifest="/manifest/%s.appcache"' % app_name,
                 }
         if app_name is None:
             logging.warning("No application defined in template.")
@@ -54,7 +54,6 @@ class App(object):
             else:
                 data['styles'] = '\n'.join([STYLE_INCLUDE % name for name in app.styles])
 
-        data['manifest'] = 'manifest="/manifest/%s.appcache"' % app_name if settings.APPCACHE else ''
         return data
 
     def build_manifest(self):
@@ -62,24 +61,25 @@ class App(object):
                     "# %s cache updated: %s" % (self.name, datetime.now().isoformat())
                     )
 
-        manifest += "\n\nCACHE:\n"
-
-        if settings.COMBINED:
-            manifest += "/js/combined/%s%s.js\n" % (self.name, '-min' if settings.MINIFIED else '')
-        else:
-            for basename in self.scripts:
-                manifest += "/js/%s.js\n" % basename
-
-        if settings.COMBINED:
-            manifest += "/css/combined/%s.css\n" % self.name
-        else:
-            for basename in self.styles:
-                manifest += "/css/%s.css\n" % basename
-
-        for fullname in self.images:
-            manifest += '/images/%s\n' % fullname
-
         manifest += "\nNETWORK:\n*\n"
+
+        if settings.APPCACHE:
+            manifest += "\n\nCACHE:\n"
+
+            if settings.COMBINED:
+                manifest += "/js/combined/%s%s.js\n" % (self.name, '-min' if settings.MINIFIED else '')
+            else:
+                for basename in self.scripts:
+                    manifest += "/js/%s.js\n" % basename
+
+            if settings.COMBINED:
+                manifest += "/css/combined/%s.css\n" % self.name
+            else:
+                for basename in self.styles:
+                    manifest += "/css/%s.css\n" % basename
+
+            for fullname in self.images:
+                manifest += '/images/%s\n' % fullname
 
         self.manifest = manifest
         logging.info(manifest)

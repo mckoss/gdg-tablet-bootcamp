@@ -37,20 +37,20 @@ namespace.module('startpad.image-gui', function(exports, require) {
     var imageTemplate = _.template(
         '<div id="<%= image.id %>-container" class="thumbnail-container">' +
           '<a class="thumbnail" data-toggle="modal" href="#<%= image.id %>-modal">' +
-            '<img class="thumbnail-image" src="/admin/media/<%= image.name %>?size=thumbnail" />' +
+            '<img class="thumbnail-image" src="/media/<%= image.name %>?size=thumbnail" />' +
             '<img class="delete icon" src="/images/delete.png" />' +
             '<img class="back icon" src="/images/arrow-back.png" />' +
             '<img class="fwd icon" src="/images/arrow-fwd.png" />' +
           '</a>' +
-          '<a class=label href="/admin/media/<%= image.name %>?size=large" target="blank">' + 
+          '<a class=label href="/media/<%= image.name %>?size=large" target="blank">' + 
             '<%= image.name %>' + 
           '</a>' +
         '</div>' +
         '<div class="modal hide" id="<%= image.id %>-modal">' +
           '<div id="<%= image.id %>-modal-body" class="modal-body">' +
-            '<a href="/admin/media/<%= image.name %>?size=large" target="blank">' +
+            '<a href="/media/<%= image.name %>?size=large" target="blank">' +
               '<img id="<%= image.id %>-modal-img" class="modal-image" ' +
-                  'src="/admin/media/<%= image.name %>?size=large" />' +
+                  'src="/media/<%= image.name %>?size=large" />' +
             '</a>' +
           '</div>' +
            '<div class="modal-footer">' +

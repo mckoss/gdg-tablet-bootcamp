@@ -251,11 +251,23 @@ class AdminPageHandler(PageHandler):
         super(AdminPageHandler, self).get(*args)
 
 
+class MediaListHandler(UserHandler, JSONHandler):
+    @require_admin_login
+    def get(self):
+        query = models.MediaModel.all(keys_only=True)
+
+        results = query.fetch(1000)
+
+        items = [item.name() for item in results]
+        self.json_response(items)
+
+
+"""
 class MediaListHandler(AdminPageHandler):
     def prepare(self):
         super(MediaListHandler, self).prepare()
         self.render_data['images'] = models.MediaModel.all()
-
+"""
 
 class MediaHandler(webapp.RequestHandler):
     def get(self, name):
@@ -306,7 +318,7 @@ class UploadHandler(UserHandler):
         media.thumbnail = thumbnail
 
         media.put()
-        self.redirect('/admin/media')
+        self.redirect('/admin#media')
 
 
 def pretty_json(json_dict):
