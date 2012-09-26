@@ -3,12 +3,5 @@ body {
   padding-bottom: 40px;
 }
 
-/*h1 { margin: 5px 0 0 0; }*/
-/*h2 { text-align:center; margin: 0 0 5px 0; }*/
-/*hr { border: 2px solid black; }*/
-/*img { border: 0; }*/
-/*div { padding:0; margin:0; }*/
-/*p { margin: 0 0 5px 0; }
-
-ol li { font-size: 20px; margin-bottom: 8px; }
-*/
+body.signed-in .if-not-signed-in { display: none; }
+body:not(.signed-in) .if-signed-in { display: none; }

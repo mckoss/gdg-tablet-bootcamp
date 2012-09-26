@@ -1,5 +1,8 @@
 <html {{ manifest|safe }}>
+
 <head>
+{% block head %}
+<title>{% block title %}GDG Tablet Demo{% endblock %}</title>
 {{ styles|safe }}
 {{ scripts|safe }}
 <!-- Make the viewport as big as the screen and not resizable-this is an app, not a webpage -->
@@ -7,10 +10,13 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="format-detection" content="telephone=no">
 <link rel="apple-touch-icon" href="/images/gdg.png" />
-
-{% block head %}{% endblock %}
+{% block head_extra %}
+{% endblock %}
+{% endblock %}
 </head>
+
 <body>
-{% block body %}{% endblock %}
+{% block body %}
+{% endblock %}
 </body>
 </html>

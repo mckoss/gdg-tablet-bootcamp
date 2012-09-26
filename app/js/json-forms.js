@@ -1,6 +1,7 @@
 namespace.module('startpad.json-forms', function(exports, require) {
     var jsonRest = require('startpad.json-rest');
     var imageGUI = require('startpad.image-gui');
+    var signin = require('gdg.signin')
 
     var types = require('org.startpad.types');
     require('org.startpad.funcs').patch();
@@ -73,7 +74,7 @@ namespace.module('startpad.json-forms', function(exports, require) {
         mainFormTemplate = _.template($('#main-form-template').html());
         mediaUploadTemplate = _.template($('#media-upload-template').html());
         baseTemplate = _.template($('#base-template').html());
-        
+
         modelRowTemplate = _.template($('#model-row-template').html());
 
         poll();
@@ -88,9 +89,17 @@ namespace.module('startpad.json-forms', function(exports, require) {
 
         var components = pageHash.split('/');
 
+        if (!signin.getInfo().isAdmin) {
+            onBasePage();
+            return;
+        }
+
         if (pageHash.length === 0) {
             onBasePage();
-        } else if (components[0] === 'forms') {
+            return;
+        }
+
+        if (components[0] === 'forms') {
             if (!components[1]) {
                 onFormsPage();
                 return;
@@ -102,9 +111,15 @@ namespace.module('startpad.json-forms', function(exports, require) {
             }
             pageInfo.id = components[2];
             onItemPage(components);
-        } else if (components[0] === 'media') {
-            onMediaPage();
+            return;
         }
+
+        if (components[0] === 'media') {
+            onMediaPage();
+            return;
+        }
+
+        onBasePage();
     }
 
     function onBasePage() {

@@ -23,6 +23,20 @@ IMAGE_SIZE_MOBILE = 480
 IMAGE_SIZE_THUMBNAIL = 64
 
 
+def is_admin(email=None):
+    if users.is_current_user_admin():
+        return True
+
+    if email is None:
+        user = users.get_current_user()
+        email = user.email() if user else 'anonymous'
+
+    if email in settings.admin_emails:
+        return True
+
+    return False
+
+
 def require_admin_login(response_function):
     def wrapper(handler, *args, **kwargs):
         if handler.user is None:
@@ -77,6 +91,23 @@ class SchemaHandler(UserHandler, JSONHandler):
         for model_name, model in models.rest_models.items():
             results['schema'][model_name] = model.get_schema()
         self.json_response(results)
+
+
+class SigninHandler(UserHandler, JSONHandler):
+    def get(self):
+        url = self.request.get('url', '/')
+        username = self.user and self.user.nickname()
+        # Warning: Any use of transient variables in a cached page
+        # will not be updated when the user state changes.
+        self.json_response({
+                'signIn': users.create_login_url(url),
+                'signOut': users.create_logout_url(url),
+                'username': username or '',
+                'siteName': settings.SITE_NAME,
+                'adminURL': settings.ADMIN_URL,
+                'isAdmin': is_admin(),
+                'userEmail': self.user_email,
+                })
 
 
 class ListHandler(UserHandler, JSONHandler):
@@ -231,9 +262,9 @@ class PageHandler(ParamHandler, UserHandler):
         username = self.user and self.user.nickname()
         self.render_data.update(includes.App.get_app_data(self.app_name))
         self.render_data.update({
-            'sign_in': users.create_login_url('/'),
-            'sign_out': users.create_logout_url('/'),
-            'username': username,
+            'sign_in': users.create_login_url(self.request.url),
+            'sign_out': users.create_logout_url(self.request.url),
+            'username': username or '',
             'site_name': settings.SITE_NAME,
             'admin_url': settings.ADMIN_URL,
             'debug': settings.DEBUG,

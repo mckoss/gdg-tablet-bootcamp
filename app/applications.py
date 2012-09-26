@@ -2,9 +2,10 @@ from includes import App
 
 # Define different javascript "apps" here.
 
-COMMON_SCRIPTS = ('jquery', 'namespace-plus', 'app-cache', 'underscore',)
+COMMON_SCRIPTS = ('jquery', 'namespace-plus', 'app-cache', 'underscore', 'signin')
 
 App('main',
+    scripts=COMMON_SCRIPTS,
     styles=('bootstrap', 'admin', 'bootstrap-responsive')
     )
 

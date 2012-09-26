@@ -1,7 +1,4 @@
 {% extends "base.html" %}
-{% block head %}
-{% block head_extra %}{% endblock %}
-{% endblock %}
 
 {% block body %}
 <div class="navbar navbar-fixed-top">
@@ -21,14 +18,11 @@
           <li><a href="{{ admin_url }}">Console</a></li>
           <li><a href="/admin#help">Help</a></li>
         </ul>
-        {% if username %}
-        <p class="navbar-text pull-right">Welcome, {{ username }}
-          <a href="{{ sign_out }}">Sign out</a>
+        <p class="if-signed-in navbar-text pull-right">Welcome, <span id="username"></span>
+          <a id="sign-out">Sign out</a>
         </p>
-        {% else %}
-        <p class="navbar-text pull-right"><a href="{{ sign_in }}">Sign in</a></p>
-        {% endif %}
-      </div><!--/.nav-collapse -->
+        <p class="if-not-signed-in navbar-text pull-right"><a id="sign-in">Sign in</a></p>
+      </div> <!--/.nav-collapse -->
     </div>
   </div>
 </div>

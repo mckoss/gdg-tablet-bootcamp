@@ -61,7 +61,7 @@ class App(object):
                     "# %s cache updated: %s" % (self.name, datetime.now().isoformat())
                     )
 
-        manifest += "\nNETWORK:\n*\n"
+        manifest += "\nNETWORK:\n/\n*\n"
 
         if settings.APPCACHE:
             manifest += "\n\nCACHE:\n"
@@ -82,7 +82,6 @@ class App(object):
                 manifest += '/images/%s\n' % fullname
 
         self.manifest = manifest
-        logging.info(manifest)
 
     @classmethod
     def get_paths(cls):
