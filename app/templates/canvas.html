@@ -18,11 +18,8 @@
   <label>Line Width:</label>
   <input id="line-width" type="number" value="2" />
 
-  {% if username %}
-  <span><a href="{{ sign_out }}">Sign out</a></span>
-  {% else %}
-  <span><a href="{{ sign_in }}">Sign in</a></span>
-  {% endif %}
+  <span class="if-signed-in"><a id="sign-out">Sign out</a></span>
+  <span class="if-not-signed-in"><a id="sign-in">Sign in</a></span>
 
   <div id="page-number"></div>
 
