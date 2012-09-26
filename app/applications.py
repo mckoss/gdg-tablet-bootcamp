@@ -5,7 +5,7 @@ from includes import App
 COMMON_SCRIPTS = ('jquery', 'namespace-plus', 'app-cache', 'underscore',)
 
 App('main',
-    styles=('bootstrap', 'bootstrap-responsive', 'admin')
+    styles=('bootstrap', 'admin', 'bootstrap-responsive')
     )
 
 App('admin',

@@ -96,7 +96,7 @@ class App(object):
                     self.response.out.write("No such application: %s" % app_name)
                     return
 
-                self.response.headers['Content-Type'] = 'test/cache-manifest'
+                self.response.headers['Content-Type'] = 'text/cache-manifest'
                 self.response.out.write(app.manifest)
 
         return [('/manifest/(\w+).appcache', ManifestHandler)]
