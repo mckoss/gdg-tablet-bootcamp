@@ -179,6 +179,11 @@ class RESTModel(HasReadOnly, db.Model):
             raise PermissionError("Invalid permissions to read item.")
         return item
 
+    def delete(self):
+        if not self.can_write():
+            raise PermissionError("Invalid permissions delete item.")
+        super(RESTModel, self).delete()
+
 
 class PermissionError(Error):
     pass

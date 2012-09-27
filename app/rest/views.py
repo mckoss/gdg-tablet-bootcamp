@@ -187,23 +187,31 @@ class ItemHandler(UserHandler, JSONHandler):
     def put(self, model_name, id):
         logging.info("called put")
         item = self.get_item(model_name, id)
-        if not item:
+        if item is None:
+            self.error(404)
+            self.response.out.write("No such model: %s[%s]." % (model_name, id))
             return
 
         data = json.loads(self.request.body)
-        if not item.can_write():
-            self.error(403)
-            self.response.out.write("Write permission failure.")
-            return
-
         item.set_dict(data)
-        item.put()
+        try:
+            item.put()
+        except models.PermisssionError, e:
+            self.error(403)
+            self.response.out.write(e)
+            return
         self.json_response(item.get_dict())
 
     def delete(self, model_name, id):
         item = self.get_item(model_name, id)
         if item:
-            item.delete()
+            try:
+                item.delete()
+            except models.PermissionError, e:
+                self.error(403)
+                self.response.write(e)
+                return
+        self.json_response({"status": "ok"})
 
 
 def filter_query_by_prefix(query, model, property_name, prefix):
