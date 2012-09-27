@@ -45,7 +45,6 @@ namespace.module('gdg.canvas', function (exports, require) {
     var globalCtx;
 
     function init() {
-        var orientation;
 
         isTouchDevice = Modernizr.touch;
 
@@ -74,7 +73,7 @@ namespace.module('gdg.canvas', function (exports, require) {
     }
 
     function bindEvents(results, message) {
-        var size, orientation, result;
+        var result;
 
         if (message === 'error') {
             results = [];
@@ -102,14 +101,10 @@ namespace.module('gdg.canvas', function (exports, require) {
         iPage = 0;
         if (results.length === 0) {  // if no stored canvases for this user
 
-            orientation = getOrientation();
-            size = getCanvasSize(orientation);
-
             pages[iPage] = {
                 $canvas: $globalCanvas, // see note 1 at top
                 ctx: globalCtx,
-                size: size,
-                orientation: orientation,
+                size: getCanvasSize(),
                 clean: true,
                 empty: true
             };
@@ -117,16 +112,15 @@ namespace.module('gdg.canvas', function (exports, require) {
             // if there are stored canvases for the user, initialize them
             for (var i = 0; i < results.length; i++) {
                 result = results[i];
-                if (!result.orientation) {
-                    result.orientation = 'portrait';
+
+                if (!result.width || !result.height) { // remove me once bootstrapped
+                    return;
                 }
-                size = getCanvasSize(result.orientation);
 
                 pages[i] = {
                     $canvas: $globalCanvas, // see note 1 at top
                     ctx: globalCtx,
-                    size: size,
-                    orientation: result.orientation,
+                    size: [result.width, result.height],
                     data: result.data,
                     id: result.id,
                     clean: true,
@@ -154,6 +148,10 @@ namespace.module('gdg.canvas', function (exports, require) {
             debugLogs();
         }
 
+        window.scrollTo(0, 1);
+        setTimeout(function () {
+            window.scrollTo(0, 1);
+        }, 0);
         requestAnimationFrame(render);       // render the first frame, starting a chain of renders
     }
 
@@ -166,20 +164,13 @@ namespace.module('gdg.canvas', function (exports, require) {
         }
     }
 
-    function getCanvasSize(orientation) {
-        console.log('getCanvasSize(' + orientation + ')');
-        var size = [];
-        // set the canvas size based on the orientation
-        if (orientation === 'portrait') {
-            size[0] = PORTRAIT[0] * DEVICE_PIXEL_RATIO;
-            size[1] = (PORTRAIT[1] - HEADER_HEIGHT) * DEVICE_PIXEL_RATIO;
-        } else if (orientation === 'landscape') {
-            size[0] = LANDSCAPE[0] * DEVICE_PIXEL_RATIO;
-            size[1] = (LANDSCAPE[1] - HEADER_HEIGHT) * DEVICE_PIXEL_RATIO;
-        } else {
-            console.log('ERROR: you have spelled something wrong');
-            return [];
-        }
+    function getCanvasSize() {
+        var size = [],
+            pxRatio = window.devicePixelRatio || 1;
+
+        size[0] = Math.floor(window.innerWidth * pxRatio);
+        size[1] = Math.floor((window.innerHeight - HEADER_HEIGHT) * pxRatio);
+
         return size;
     }
 
@@ -207,12 +198,10 @@ namespace.module('gdg.canvas', function (exports, require) {
         if (i === pages.length) {
             // HACK since we are only using one canvas, might as well be
             // a global var, so take the one and only canvas and ctx vars from pages[0]
-            var orientation = getOrientation();
             pages[i] = {
                 $canvas: $globalCanvas,
                 ctx: globalCtx,
-                size: getCanvasSize(orientation),
-                orientation: orientation,
+                size: getCanvasSize(),
                 clean: true,
                 empty: true
             };
@@ -246,7 +235,8 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         var saveData = JSON.stringify({
             data: page.data,
-            orientation: page.orientation
+            width: page.width,
+            height: page.height
         });
 
         page.locked = true;  // lock the page so it cannot be saved twice
@@ -276,54 +266,6 @@ namespace.module('gdg.canvas', function (exports, require) {
 
     function updatePageNum() {
         $('#page-number')[0].innerHTML = iPage + 1;
-    }
-
-    function save() {
-        var page, i, saveData;
-
-        $('#save').enable(false);
-        setTimeout(checkSaved, 500);
-
-        page = pages[iPage];
-        page.data = page.$canvas[0].toDataURL();
-
-        for (i = 0; i < pages.length; i++) {
-            console.log('beginning save of page ' + i);
-            page = pages[i];
-            if (page.clean === true) {
-                console.log('this page is clean, continuing to the next');
-                continue;
-            }
-
-            saveData = JSON.stringify({
-                data: page.data,
-                orientation: page.orientation
-            });
-
-            page.locked = true;  // lock the page so it cannot be saved twice
-                                 // page is unlocked on ajax callback
-
-            if (page.id !== undefined) { // if this page had been loaded from server before
-                console.log('page has an id, doing a put to page.id = ' + page.id);
-                $.ajax({
-                    type: 'PUT',
-                    url: '/data/canvas/' + page.id,
-                    data: saveData,
-                    error: onError.curry(i),
-                    success: onPutSuccess.curry(i)
-                });
-            } else {
-                console.log('page id is undefined, posting...');
-                $.ajax({
-                    type: 'POST',
-                    url: '/data/canvas',
-                    data: saveData,
-                    error: onError.curry(i),
-                    success: onPostSuccess.curry(i)
-                });
-            }
-            pages[i].clean = true;
-        }
     }
 
     function checkSaved() {
@@ -405,6 +347,7 @@ namespace.module('gdg.canvas', function (exports, require) {
         }
         $('#canvas-holder').css({
             'margin-top': marginTop,
+            'margin-bottom': marginTop + 100,
             'width': size[0] * scale,
             'height': size[1] * scale
         });
@@ -500,23 +443,6 @@ namespace.module('gdg.canvas', function (exports, require) {
         return Math.round(fpsAverage);
     }
 
-    function getOrientation() {
-        // If media queries supported, use them to determine orientation and get out
-        if (window.matchMedia) {
-            var mql = window.matchMedia("(orientation: portrait)");
-            if (mql.matches) {
-                return 'portrait';
-            } else {
-                return 'landscape';
-            }
-        }
-        // Media queries not supported, just use window size
-        if (window.innerWidth > window.innerHeight) {
-            return 'landscape';
-        } else {
-            return 'portrait';
-        }
-    }
 
     // if is a touch event, expose the real touch event (to get at pageX/Y)
     function exposeTouchEvent(e) {
