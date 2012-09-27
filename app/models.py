@@ -56,7 +56,9 @@ class Showdown(RESTModel, Timestamped):
 
 class Canvas(RESTModel, Timestamped):
     data = db.TextProperty()
-    orientation = db.StringProperty()
+    width = db.IntegerProperty()
+    height = db.IntegerProperty()
+    #orientation = db.StringProperty()
 
     private_model = True
 
