@@ -10,8 +10,8 @@ from datetime import datetime
 
 APP_PATH = os.path.dirname(os.path.abspath(__file__))
 
-SCRIPT_INCLUDE = '<script type="text/javascript" src="/js/%s.js"></script>'
-STYLE_INCLUDE = '<link type="text/css" rel="stylesheet" href="/css/%s.css" />'
+SCRIPT_INCLUDE = '<script type="text/javascript" src="/js/%s.js?v=%s"></script>'
+STYLE_INCLUDE = '<link type="text/css" rel="stylesheet" href="/css/%s.css?v=%s" />'
 
 
 class App(object):
@@ -27,12 +27,7 @@ class App(object):
         self.build_manifest()
 
     @classmethod
-    def get_app_data(cls, app_name):
-        data = {'scripts': '',
-                'styles': '',
-                'manifest': '',
-                }
-
+    def get_app(cls, app_name):
         if app_name is None:
             logging.warning("No application defined in template.")
             return data
@@ -40,29 +35,38 @@ class App(object):
         if app_name not in cls.all_apps:
             logging.error("No such app: %s.", app_name)
 
-        app = cls.all_apps[app_name]
+        return cls.all_apps[app_name]
+
+    def get_data(self):
+        data = {'scripts': '',
+                'styles': '',
+                'manifest': '',
+                }
 
         if settings.APPCACHE:
-            data['manifest'] = 'manifest="/manifest/%s.appcache"' % app_name
+            data['manifest'] = 'manifest="/manifest/%s.appcache"' % self.name
 
-        if len(app.scripts) > 0:
+        if len(self.scripts) > 0:
             if settings.COMBINED:
-                base_names = ['combined/%s%s' % (app_name, '-min' if settings.MINIFIED else '')]
+                base_names = ['combined/%s%s' % (self.name, '-min' if settings.MINIFIED else '')]
             else:
-                base_names = app.scripts
-            data['scripts'] = '\n'.join([SCRIPT_INCLUDE % name for name in base_names])
+                base_names = self.scripts
+            data['scripts'] = '\n'.join([SCRIPT_INCLUDE % (name, self.version)
+                                         for name in base_names])
 
-        if len(app.styles) > 0:
+        if len(self.styles) > 0:
             if settings.COMBINED:
-                data['styles'] = STYLE_INCLUDE % ('combined/' + app_name)
+                data['styles'] = STYLE_INCLUDE % ('combined/' + self.name)
             else:
-                data['styles'] = '\n'.join([STYLE_INCLUDE % name for name in app.styles])
+                data['styles'] = '\n'.join([STYLE_INCLUDE % (name, self.version)
+                                            for name in self.styles])
 
         return data
 
     def build_manifest(self):
+        self.version = datetime.now().isoformat()
         manifest = ("CACHE MANIFEST\n" +
-                    "# %s cache updated: %s" % (self.name, datetime.now().isoformat())
+                    "# %s cache updated: %s" % (self.name, self.version)
                     )
 
         manifest += "\nNETWORK:\n/\n*\n"
@@ -71,16 +75,18 @@ class App(object):
             manifest += "\n\nCACHE:\n"
 
             if settings.COMBINED:
-                manifest += "/js/combined/%s%s.js\n" % (self.name, '-min' if settings.MINIFIED else '')
+                manifest += "/js/combined/%s%s.js?v=%s\n" % (self.name,
+                                                             '-min' if settings.MINIFIED else '',
+                                                             self.version)
             else:
                 for basename in self.scripts:
-                    manifest += "/js/%s.js\n" % basename
+                    manifest += "/js/%s.js?v=%s\n" % (basename, self.version)
 
             if settings.COMBINED:
-                manifest += "/css/combined/%s.css\n" % self.name
+                manifest += "/css/combined/%s.css?v=%s\n" % (self.name, self.version)
             else:
                 for basename in self.styles:
-                    manifest += "/css/%s.css\n" % basename
+                    manifest += "/css/%s.css?v=%s\n" % (basename, self.version)
 
             for fullname in self.images:
                 manifest += '/images/%s\n' % fullname

@@ -257,7 +257,7 @@ class PageHandler(ParamHandler, UserHandler):
 
     def prepare(self):
         username = self.user and self.user.nickname()
-        self.render_data.update(includes.App.get_app_data(self.app_name))
+        self.render_data.update(includes.App.get_app(self.app_name).get_data())
         self.render_data.update({
             'site_name': settings.SITE_NAME,
             'admin_url': settings.ADMIN_URL,

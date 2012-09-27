@@ -15,7 +15,7 @@ if DEPLOY:
 else:
     DEBUG = True
     COMBINED = False
-    APPCACHE = False
+    APPCACHE = True
     MINIFIED = False
 
 # App Engine specific variables.
