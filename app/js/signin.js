@@ -11,7 +11,7 @@ namespace.module('gdg.signin', function (exports, require) {
     $(document).ready(setup);
 
     function setup() {
-        $.get('/meta/signin', {"url": location.href}).success(updatePage);
+        $.get('/meta/signin', {"url": encodeURIComponent(location.href)}).success(updatePage);
     }
 
     function getInfo() {

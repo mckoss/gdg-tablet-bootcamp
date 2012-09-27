@@ -8,6 +8,8 @@ from google.appengine.api import users
 from google.appengine.api.datastore_errors import *
 from google.appengine.api.datastore_types import Text
 
+import settings
+
 SIMPLE_TYPES = (int, long, float, bool, dict, basestring, list, Text)
 JS_TYPES = ('number', 'number', 'number', 'boolean', 'object',
             'string', 'object', 'string')
@@ -39,11 +41,11 @@ class HasReadOnly():
 
 class RESTModel(HasReadOnly, db.Model):
     # Every model has a name property - used to display in lists.
-
     name = db.StringProperty()
     owner_email = db.StringProperty()
 
-    private_model = False
+    # 'public-read', 'public-write' are available permissions
+    permissions = ()
 
     def set_defaults(self):
         pass
@@ -141,23 +143,45 @@ class RESTModel(HasReadOnly, db.Model):
     def from_json(self, json_string):
         self.set_dict(json.loads(json_string))
 
-    def can_write(self, user_email='anonymous'):
-        """ Decide if the item can be modified by a user.
+    def can_write(self):
+        """ Decide if the item can be modified by the current user.
 
         By default - we only allow the owner of an item to modify it.
         """
-        if self.owner_email is None or self.owner_email == 'anonymous':
+        if is_admin() or 'public-write' in self.permissions:
             return True
-        return self.owner_email == user_email
+
+        return self.owner_email == current_email()
+
+    def can_read(self):
+        if is_admin() or 'public-read' in self.permissions:
+            return True
+        return self.owner_email == current_email()
 
     @classmethod
     def all(cls):
         query = super(RESTModel, cls).all()
-        if not cls.private_model:
+        if 'public-read' in cls.permissions or is_admin():
             return query
-        if users.get_current_user() is None:
-            return query.filter('owner_email =', None)
-        return query.filter('owner_email =', users.get_current_user().email())
+        return query.filter('owner_email =', current_email())
+
+    def put(self):
+        if not self.can_write():
+            raise PermissionError("Invalid permissions to modify item.")
+        super(RESTModel, self).put()
+
+    @classmethod
+    def get_by_id(self, id):
+        item = super(RESTModel, self).get_by_id(id)
+        if item is None:
+            return None
+        if not item.can_read():
+            raise PermissionError("Invalid permissions to read item.")
+        return item
+
+
+class PermissionError(Error):
+    pass
 
 
 class Timestamped(HasReadOnly, db.Model):
@@ -171,12 +195,12 @@ class Timestamped(HasReadOnly, db.Model):
     def get_read_only(cls):
         return ('created', 'modified') + super(Timestamped, cls).get_read_only()
 
-    def put(self, *args, **kwargs):
+    def put(self):
         # Don't rely on auto_now property to set the modification
         # time since it does not seem to be over-written in the model
         # after a put().
         self.modified = datetime.now()
-        super(Timestamped, self).put(*args, **kwargs)
+        super(Timestamped, self).put()
 
 
 class ModelEncoder(json.JSONEncoder):
@@ -193,9 +217,10 @@ class ModelEncoder(json.JSONEncoder):
 
 
 class MediaModel(Timestamped):
-    large = db.BlobProperty()      # 960 ^2
-    mobile = db.BlobProperty()     # 480 ^2
-    thumbnail = db.BlobProperty()  # 64  ^2
+    """ 960x960, 480x480, and 64x64 image sizes. """
+    large = db.BlobProperty()
+    mobile = db.BlobProperty()
+    thumbnail = db.BlobProperty()
 
 
 def py_to_js_type(py_type):
@@ -221,3 +246,20 @@ def py_to_js_type(py_type):
     if 'type' not in result:
         result['type'] = '%r' % py_type
     return result
+
+
+def is_admin():
+    """ Determine if current authenticated user is an admin. """
+    if users.is_current_user_admin():
+        return True
+
+    if current_email() in settings.admin_emails:
+        return True
+
+    return False
+
+
+def current_email():
+    """ Email address of current authenticated user (or None) """
+    user = users.get_current_user()
+    return user.email() if user else None

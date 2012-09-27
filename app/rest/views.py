@@ -4,6 +4,7 @@ import re
 import logging
 import json
 import traceback
+from hashlib import sha1
 
 from google.appengine.api import users
 from google.appengine.ext import webapp, db
@@ -21,20 +22,6 @@ JSON_MIMETYPE_CS = JSON_MIMETYPE + '; charset=utf-8'
 IMAGE_SIZE_LARGE = 960
 IMAGE_SIZE_MOBILE = 480
 IMAGE_SIZE_THUMBNAIL = 64
-
-
-def is_admin(email=None):
-    if users.is_current_user_admin():
-        return True
-
-    if email is None:
-        user = users.get_current_user()
-        email = user.email() if user else 'anonymous'
-
-    if email in settings.admin_emails:
-        return True
-
-    return False
 
 
 def require_admin_login(response_function):
@@ -82,7 +69,15 @@ class JSONHandler(webapp.RequestHandler):
         self.response.headers['Content-Type'] = JSON_MIMETYPE_CS
         if cache:
             self.response.headers['Cache-Control'] = 'max-age=3600'
-        self.response.out.write(pretty_json(json_dict))
+        result = pretty_json(json_dict)
+
+        etag = '"%s"' % sha1(result).hexdigest()
+        self.response.headers['ETag'] = etag
+        if etag == self.request.headers.get('If-None-Match'):
+            self.response.set_status(304)
+            return
+
+        self.response.out.write(result)
 
 
 class SchemaHandler(UserHandler, JSONHandler):
@@ -105,7 +100,7 @@ class SigninHandler(UserHandler, JSONHandler):
                 'username': username or '',
                 'siteName': settings.SITE_NAME,
                 'adminURL': settings.ADMIN_URL,
-                'isAdmin': is_admin(),
+                'isAdmin': models.is_admin(),
                 'userEmail': self.user_email,
                 })
 
@@ -147,23 +142,7 @@ class ListHandler(UserHandler, JSONHandler):
         model = self.get_model(model_name)
         if model is None:
             return
-        """
-        # FROM HERE
-        # HACK - How else to initialize properties ONLY in the case
-        # where a model is being created.
-        if hasattr(model, 'set_defaults'):
-            model.set_defaults()
 
-        data = json.loads(self.request.body)
-        item = model(user_id=self.user_id)
-        item.set_dict(data)
-        item.put()
-        json_response(self.response, item.get_dict())
-        #TO HERE IS DIFFERENT IN SC HERE IT IS:
-        """
-
-        # HACK - How else to initialize properties ONLY in the case
-        # where a model is being created.
         data = json.loads(self.request.body)
         item = model(owner_email=self.user_email)
 
@@ -171,16 +150,21 @@ class ListHandler(UserHandler, JSONHandler):
             item.set_defaults()
 
         item.set_dict(data)
-        item.put()
+        try:
+            item.put()
+        except models.PermissionError, e:
+            self.error(403)
+            self.response.out.write(e)
+            return
+
         self.json_response(item.get_dict())
 
 
 class ItemHandler(UserHandler, JSONHandler):
     def get(self, model_name, id):
         item = self.get_item(model_name, id)
-        if not item:
-            return
-        self.json_response(item.get_dict())
+        if item is not None:
+            self.json_response(item.get_dict())
 
     def get_item(self, model_name, id):
         if model_name not in models.rest_models:
@@ -188,7 +172,12 @@ class ItemHandler(UserHandler, JSONHandler):
             self.response.out.write("No such model: %s." % model_name)
             return None
         model = models.rest_models[model_name]
-        item = model.get_by_id(int(id))
+        try:
+            item = model.get_by_id(int(id))
+        except models.PermissionError, e:
+            self.error(403)
+            self.response.out.write(e)
+            return None
         if item is None:
             self.error(404)
             self.response.out.write("No such model: %s[%s]." % (model_name, id))
@@ -202,7 +191,7 @@ class ItemHandler(UserHandler, JSONHandler):
             return
 
         data = json.loads(self.request.body)
-        if not item.can_write(user_email=self.user_email):
+        if not item.can_write():
             self.error(403)
             self.response.out.write("Write permission failure.")
             return
