@@ -140,9 +140,9 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         $(window).on(leaveEventStr, onLeave);
 
-        //$(window).on('beforeunload', save);
+        $(window).on('beforeunload', beforeUnload);
 
-        setInterval(poll, 5000);
+        setInterval(poll, 15000);
 
         if (DEBUG) {
             debugLogs();
@@ -155,13 +155,27 @@ namespace.module('gdg.canvas', function (exports, require) {
         requestAnimationFrame(render);       // render the first frame, starting a chain of renders
     }
 
+    function beforeUnload() {
+        if (saveIfDirty() === true) {
+            return;
+        }
+        return "There is unsaved data still on this page.  Stay on this page to save it.";
+    }
+
     function poll() {
         console.log('poll()');
+        saveIfDirty();
+    }
+
+    function saveIfDirty() {
+        var everythingClean = true;
         for (var i = 0; i < pages.length; i++) {
             if (pages[i].clean === false) {
+                everythingClean = false;
                 savePage(i);
             }
         }
+        return everythingClean;
     }
 
     function getCanvasSize() {
@@ -180,6 +194,14 @@ namespace.module('gdg.canvas', function (exports, require) {
                 save = args.save,
                 force = args.force;
 
+        console.log('changing page to page # ' + (i + 1));
+
+        var page = pages[iPage];
+
+        if (save) {
+            savePage(iPage);
+        }
+
         // if not forcing, check to see if this changePage is unnecessary/unwanted
         if (!force) {
             if (i < 0 || i > pages.length ||
@@ -187,14 +209,7 @@ namespace.module('gdg.canvas', function (exports, require) {
                 return;
             }
         }
-        console.log('changing page to page # ' + (i + 1));
 
-        var page = pages[iPage];
-
-        if (save) {
-            page.data = page.$canvas[0].toDataURL();
-            savePage(iPage);
-        }
         if (i === pages.length) {
             // HACK since we are only using one canvas, might as well be
             // a global var, so take the one and only canvas and ctx vars from pages[0]
@@ -233,10 +248,12 @@ namespace.module('gdg.canvas', function (exports, require) {
             return;
         }
 
+        page.data = page.$canvas[0].toDataURL();
+
         var saveData = JSON.stringify({
             data: page.data,
-            width: page.width,
-            height: page.height
+            width: page.size[0],
+            height: page.size[1]
         });
 
         page.locked = true;  // lock the page so it cannot be saved twice
