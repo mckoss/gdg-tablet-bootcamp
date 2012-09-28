@@ -5,7 +5,7 @@ admin_emails = ('mckoss@gmail.com',)
 
 SITE_NAME = "GDG Tablet Sample"
 
-DEPLOY = False
+DEPLOY = True
 
 if DEPLOY:
     DEBUG = False
@@ -15,7 +15,7 @@ if DEPLOY:
 else:
     DEBUG = True
     COMBINED = False
-    APPCACHE = True
+    APPCACHE = False
     MINIFIED = False
 
 # App Engine specific variables.

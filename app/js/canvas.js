@@ -34,15 +34,14 @@ namespace.module('gdg.canvas', function (exports, require) {
     var touchQueue = [];
 
     var HEADER_HEIGHT;
-    var DEVICE_PIXEL_RATIO = 1.325;  // device pixel to css pixel ratio on a nexus 7
-    var PORTRAIT = [603, 796];  // CSS pixels available in portrait  mode in chrome on a nexus 7
-    var LANDSCAPE = [965, 443]; // CSS pixels available in landscape mode in chrome on a nexus 7
 
     var pages = [];
     var iPage;
 
     var $globalCanvas;
     var globalCtx;
+
+    var offline = false;
 
     function init() {
 
@@ -64,11 +63,7 @@ namespace.module('gdg.canvas', function (exports, require) {
         $.ajax({
             url: '/data/canvas',
             error: bindEvents,
-            success: bindEvents,
-            error: function () {
-                console.log('ERROR in ajax get call to /data/canvas');
-                console.log(arguments);
-            }
+            success: bindEvents
         });
     }
 
@@ -77,6 +72,7 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         if (message === 'error') {
             results = [];
+            setOffline(true);
         }
 
         // set change and keyup events on the color and line width inputs
@@ -124,7 +120,7 @@ namespace.module('gdg.canvas', function (exports, require) {
                     data: result.data,
                     id: result.id,
                     clean: true,
-                    emtpy: false
+                    empty: false
                 };
             }
             changePage({ i: results.length - 1, save: false, force: true });
@@ -188,27 +184,43 @@ namespace.module('gdg.canvas', function (exports, require) {
         return size;
     }
 
+    function checkIfAnyDataEqual() {
+        for (var i = 0; i < pages.length; i++) {
+            for (var j = 0; j < pages.length; j++) {
+                if (j === i) {
+                    continue;
+                }
+                if (pages[i].data === pages[j].data) {
+                    console.log('data of page ' + i + ' is equal to data of page ' + j);
+                }
+            }
+        }
+    }
+
     function changePage(args) {
-        console.log('changing page', args);
+        checkIfAnyDataEqual();
         var i = args.i,
                 save = args.save,
                 force = args.force;
 
-        console.log('changing page to page # ' + (i + 1));
+        console.log('changing page to page i = ' + i);
 
         var page = pages[iPage];
 
         if (save) {
-            savePage(iPage);
+            saveIfDirty();
         }
 
         // if not forcing, check to see if this changePage is unnecessary/unwanted
         if (!force) {
             if (i < 0 || i > pages.length ||
                 (pages[iPage].empty === true && i === pages.length)) {
+                console.log('returning out of changePage early');
                 return;
             }
         }
+
+        console.log('actually changing the page');
 
         if (i === pages.length) {
             // HACK since we are only using one canvas, might as well be
@@ -228,7 +240,7 @@ namespace.module('gdg.canvas', function (exports, require) {
         sizeCanvas(page);
 
         if (page.data) {
-            console.log('canvas has some page data, drawing it');
+            console.log('canvas with i = ' + i + ' has some page data, drawing it');
             var img = new Image();
             $(img).on('load', function () {
                 page.ctx.drawImage(img, 0, 0);
@@ -245,6 +257,7 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         var page = pages[i];
         if (page.clean === true) {
+            console.log('page i = ' + i + ' is clean so it is not being saved');
             return;
         }
 
@@ -261,6 +274,7 @@ namespace.module('gdg.canvas', function (exports, require) {
 
         if (page.id !== undefined) { // if this page had been loaded from server before
             console.log('page has an id, doing a put to page.id = ' + page.id);
+            console.log('sending a PUT out for page i = ' + i);
             $.ajax({
                 type: 'PUT',
                 url: '/data/canvas/' + page.id,
@@ -270,6 +284,7 @@ namespace.module('gdg.canvas', function (exports, require) {
             });
         } else {
             console.log('page id is undefined, posting...');
+            console.log('sending a POST out for page i = ' + i);
             $.ajax({
                 type: 'POST',
                 url: '/data/canvas',
@@ -285,34 +300,36 @@ namespace.module('gdg.canvas', function (exports, require) {
         $('#page-number')[0].innerHTML = iPage + 1;
     }
 
-    function checkSaved() {
-        var allSaved = true;
-        for (var i = 0; i < pages.length; i++) {
-            if (pages[i].locked === true) {
-                allSaved = false;
-            }
-        }
-        if (allSaved === true) {
-            $('#save').enable(true);
-        } else {
-            setTimeout(checkSaved, 500);
-        }
-    }
-
     function onError(i) {
         pages[i].locked = false;
-        alert('Unable to save page number ' + i + '. Please try again later');
+        pages[i].clean = false;
+        setOffline(true);
+        console.log('Unable to save page number ' + i + '. Please try again later');
         console.log('PUT/POST error arguments:', arguments);
     }
 
     function onPutSuccess(i, savedData) {
+        console.log('PUT success i = ' + i);
         pages[i].locked = false;
+        setOffline(false);
     }
 
     function onPostSuccess(i, savedData) {
+        console.log('POST success i = ' + i);
         pages[i].locked = false;
         // set the model id given back from the server, so a PUT is used next time it is saved
         pages[i].id = savedData.id;
+        setOffline(false);
+    }
+
+    function setOffline(which) {
+        if (which) {
+            offline = true;
+            $('body').addClass('offline');
+        } else {
+            offline = false;
+            $('body').removeClass('offline');
+        }
     }
 
     function changeColor(event) {
@@ -418,7 +435,6 @@ namespace.module('gdg.canvas', function (exports, require) {
         if (event.target.nodeName !== 'CANVAS') {
             return;
         }
-        console.log('binding move up and leave to ' + moveEventStr.slice(0,5));
         $(document).on(moveEventStr, onMove);
         $(document).on(upEventStr, onUp);
         $(document).on(leaveEventStr, onLeave);

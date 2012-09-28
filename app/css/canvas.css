@@ -5,6 +5,12 @@ body {
   margin: 0;
   text-align: center;
 }
+body.offline {
+  background-color: #f99;
+}
+body:not(.offline) {
+  background-color: #fff;
+}
 #canvas-holder {
   background-color: #ddd;
   display: block;
@@ -16,12 +22,6 @@ canvas {
   height: 100%;
 }
 #control {
--webkit-touch-callout: none;
--webkit-user-select: none;
--khtml-user-select: none;
--moz-user-select: none;
--ms-user-select: none;
-user-select: none;
   display: inline-block;
   vertical-align: middle;
   height: 30px;
@@ -30,6 +30,13 @@ user-select: none;
   font-size: 16px;
   line-height: 30px;
   overflow: hidden;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 #control > * {
   margin-left: 3px;

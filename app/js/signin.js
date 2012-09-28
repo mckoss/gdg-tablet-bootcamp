@@ -5,13 +5,13 @@ namespace.module('gdg.signin', function (exports, require) {
 
     var info = {
         'isAdmin': false,
-        'username': '',
+        'username': ''
         };
 
     $(document).ready(setup);
 
     function setup() {
-        $.get('/meta/signin', {"url": encodeURIComponent(location.href)}).success(updatePage);
+        $.get('/meta/signin', {"url": location.href}).success(updatePage);
     }
 
     function getInfo() {
