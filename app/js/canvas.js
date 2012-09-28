@@ -256,6 +256,10 @@ namespace.module('gdg.canvas', function (exports, require) {
         console.log('saving page ' + i);
 
         var page = pages[i];
+        if (!page) {
+            console.log('ERROR: savePage(' + i + '), pages[' + i + '] is undefined');
+            return;
+        }
         if (page.clean === true) {
             console.log('page i = ' + i + ' is clean so it is not being saved');
             return;

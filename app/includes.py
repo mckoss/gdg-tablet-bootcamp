@@ -56,7 +56,7 @@ class App(object):
 
         if len(self.styles) > 0:
             if settings.COMBINED:
-                data['styles'] = STYLE_INCLUDE % ('combined/' + self.name)
+                data['styles'] = STYLE_INCLUDE % ('combined/' + self.name, self.version)
             else:
                 data['styles'] = '\n'.join([STYLE_INCLUDE % (name, self.version)
                                             for name in self.styles])

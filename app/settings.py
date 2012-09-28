@@ -10,8 +10,8 @@ DEPLOY = True
 if DEPLOY:
     DEBUG = False
     COMBINED = True
-    APPCACHE = True
     MINIFIED = True
+    APPCACHE = True
 else:
     DEBUG = True
     COMBINED = False
