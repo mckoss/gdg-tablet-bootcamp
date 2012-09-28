@@ -5,7 +5,9 @@ admin_emails = ('mckoss@gmail.com',)
 
 SITE_NAME = "GDG Tablet Sample"
 
-DEPLOY = True
+DEPLOY = False
+
+# Before running a combined version, you must the the bin/build.py command to combine your files.
 
 if DEPLOY:
     DEBUG = False
