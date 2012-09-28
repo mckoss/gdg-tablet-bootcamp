@@ -18,9 +18,6 @@ else:
     MINIFIED = False
     APPCACHE = False
 
-# Temp settings
-APPCACHE = True
-
 # App Engine specific variables.
 APP_ID = os.environ.get('APPLICATION_ID')
 if APP_ID is not None:
