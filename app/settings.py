@@ -10,13 +10,16 @@ DEPLOY = False
 if DEPLOY:
     DEBUG = False
     COMBINED = True
-    APPCACHE = True
     MINIFIED = True
+    APPCACHE = True
 else:
     DEBUG = True
     COMBINED = False
-    APPCACHE = True
     MINIFIED = False
+    APPCACHE = False
+
+# Temp settings
+APPCACHE = True
 
 # App Engine specific variables.
 APP_ID = os.environ.get('APPLICATION_ID')

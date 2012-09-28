@@ -1,2 +1,3 @@
 body.signed-in .if-not-signed-in { display: none; }
 body:not(.signed-in) .if-signed-in { display: none; }
+#sign-out:hover { cursor: hand; }
