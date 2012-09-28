@@ -109,10 +109,6 @@ namespace.module('gdg.canvas', function (exports, require) {
             for (var i = 0; i < results.length; i++) {
                 result = results[i];
 
-                if (!result.width || !result.height) { // remove me once bootstrapped
-                    return;
-                }
-
                 pages[i] = {
                     $canvas: $globalCanvas, // see note 1 at top
                     ctx: globalCtx,
