@@ -30,9 +30,6 @@ namespace.module('gdg.signin', function (exports, require) {
 
     function dispatch(eventName, data) {
         var funcs = handlers[eventName];
-        if (!funcs) {
-            return;
-        }
         for (var i = 0; i < funcs.length; i++) {
             funcs[i](data);
         }
@@ -59,6 +56,8 @@ namespace.module('gdg.signin', function (exports, require) {
     }
 
     function updatePage(data) {
+        cookies.setCookie('signin-url', data.signIn);
+        $('#sign-in').attr('href', data.signIn);
         dispatch(data.username ? 'signin' : 'signout', data);
     }
 
@@ -68,7 +67,6 @@ namespace.module('gdg.signin', function (exports, require) {
         $('body').addClass('signed-in');
         $('#sign-in').attr('href', data.signIn);
         cookies.setCookie('signin-info', JSON.stringify(info));
-        cookies.setCookie('signin-url', info.signIn);
     }
 
     function onSignOut() {
