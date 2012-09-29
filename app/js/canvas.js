@@ -14,6 +14,8 @@
 
 namespace.module('gdg.canvas', function (exports, require) {
     require('org.startpad.funcs').patch();
+    var touch = require('gdg.touch');
+
 
     $(document).ready(function () {
         setTimeout(init, 0);  // let the DOM catch up before calling init
@@ -44,7 +46,7 @@ namespace.module('gdg.canvas', function (exports, require) {
     var offline = false;
 
     function init() {
-
+        touch.init();
         isTouchDevice = Modernizr.touch;
 
         downEventStr  = isTouchDevice ? 'touchstart'  : 'mousedown';
@@ -140,6 +142,12 @@ namespace.module('gdg.canvas', function (exports, require) {
             debugLogs();
         }
 
+        /*
+        $(document).on(upEventStr, touch.doubleTap.curry(function () {
+            alert('you doubletapped!');
+        }));
+*/
+
         window.scrollTo(0, 1);
         setTimeout(function () {
             window.scrollTo(0, 1);
@@ -148,26 +156,33 @@ namespace.module('gdg.canvas', function (exports, require) {
     }
 
     function beforeUnload() {
-        if (saveIfDirty() === true) {
+        if (isAnyDirty() === false) {
             return;
         }
+        setTimeout(saveAll, 0);
         return "There is unsaved data still on this page.  Stay on this page to save it.";
     }
 
     function poll() {
         console.log('poll()');
-        saveIfDirty();
+        saveAll();
     }
 
-    function saveIfDirty() {
-        var everythingClean = true;
+    function saveAll() {
         for (var i = 0; i < pages.length; i++) {
             if (pages[i].clean === false) {
-                everythingClean = false;
                 savePage(i);
             }
         }
-        return everythingClean;
+    }
+
+    function isAnyDirty() {
+        for (var i = 0; i < pages.length; i++) {
+            if (pages[i].clean === false) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function getCanvasSize() {
@@ -204,7 +219,7 @@ namespace.module('gdg.canvas', function (exports, require) {
         var page = pages[iPage];
 
         if (save) {
-            saveIfDirty();
+            saveAll();
         }
 
         // if not forcing, check to see if this changePage is unnecessary/unwanted

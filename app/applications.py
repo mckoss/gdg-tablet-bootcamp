@@ -23,7 +23,7 @@ App('todos',
     )
 
 App('canvas',
-    scripts=COMMON_SCRIPTS + ('bootstrap-colorpicker', 'modernizr-touch-only', 'canvas'),
+    scripts=COMMON_SCRIPTS + ('bootstrap-colorpicker', 'modernizr-touch-only', 'canvas', 'touch-events'),
     styles=('bootstrap', 'colorpicker', 'canvas', 'signin'),
     images=('alpha.png','hue.png','saturation.png')
     )
