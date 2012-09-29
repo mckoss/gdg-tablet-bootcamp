@@ -199,7 +199,7 @@ You can run your application at `http://<your-app-name>.appspot.com`.
    - Application Title: "GDG Bootcamp Sample"
    - Click Create Application
 3. Edit the file gdg-tablet-bootcamp/app/app.yaml:
-   - Change `gdg-mckoss` to be `gdg-<your-name>`
+   - Change `gdg-tablet` to be `gdg-<your-name>`
 4. Deploy your application.
    - Open the App Engine Launcher
    - Select your app.
